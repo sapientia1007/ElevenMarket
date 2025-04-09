@@ -18,11 +18,13 @@ public class Bid extends BaseTimeEntity {
     @Column(name = "bid_id")
     private Long id;
 
-    @OneToOne
-    private Users bidder_id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bidder_id", nullable = false)
+    private Users bidder;
 
-    @OneToOne
-    private Product product_id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     private Long bid_price;
 
