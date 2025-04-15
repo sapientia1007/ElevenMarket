@@ -27,5 +27,4 @@ public class Bid extends BaseTimeEntity {
     private Product product;
 
     private Long bid_price;
-
 }
