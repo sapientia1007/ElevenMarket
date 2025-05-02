@@ -37,4 +37,15 @@ public class Product extends BaseTimeEntity {
     @JoinColumn(name = "seller_id", nullable = false)
     private Users seller;
 
+    @Column(nullable = false)
+    private Integer quantity;
+
+    private static final int DECREASE_AMOUNT = 1;  // 고정된 감소량 (1)
+
+    public void decreaseStock() {
+        if (this.quantity < DECREASE_AMOUNT) {
+            throw new IllegalStateException("재고가 부족합니다. 현재 재고: " + this.quantity);
+        }
+        this.quantity -= DECREASE_AMOUNT;
+    }
 }
