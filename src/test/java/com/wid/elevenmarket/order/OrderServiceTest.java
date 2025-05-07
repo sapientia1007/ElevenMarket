@@ -7,6 +7,7 @@ import com.wid.elevenmarket.persistence.OrderRepository;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
 import com.wid.elevenmarket.business.OrderService;
+import com.wid.elevenmarket.presentation.dto.order.OrderResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class OrderServiceTest {
         Users savedUser = usersRepository.findById(user.getId()).orElseThrow();
 
         // 실제 주문 처리 메소드 호출
-        Orders savedOrder = orderService.processOrder(savedUser.getId(), savedProduct.getId());
+        OrderResponseDto savedOrder = orderService.processOrder(savedUser.getId(), savedProduct.getId());
 
         // 상품의 재고 감소 확인
         Product updatedProduct = productRepository.findById(savedProduct.getId()).orElseThrow();
@@ -61,8 +62,8 @@ public class OrderServiceTest {
 
         // 주문 객체 확인
         assertNotNull(savedOrder);
-        assertEquals(savedUser, savedOrder.getBuyer());
-        assertEquals(savedProduct, savedOrder.getProduct());
+        assertEquals(savedUser.getId(), savedOrder.getBuyer().getId());
+        assertEquals(savedProduct.getId(), savedOrder.getProduct().getId());
         assertEquals(savedProduct.getPrice(), savedOrder.getPriceAtPurchase());
     }
 }

@@ -7,6 +7,7 @@ import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.persistence.OrderRepository;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
+import com.wid.elevenmarket.presentation.dto.order.OrderResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class OrderService {
 
     // 주문 처리
     @Transactional
-    public Orders processOrder(Long userId, Long productId) {
+    public OrderResponseDto processOrder(Long userId, Long productId) {
         // 조회
         Product savedProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 상품이에요", HttpStatus.NOT_FOUND));
         Users savedUser = usersRepository.findById(userId).orElseThrow(() -> new CustomException("존재하지 않는 사용자에요", HttpStatus.NOT_FOUND));
@@ -35,7 +36,9 @@ public class OrderService {
         // 상품 재고 개수 감소
         savedProduct.decreaseStock();
         productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 상품이에요", HttpStatus.NOT_FOUND));
-        return savedOrder;
-    }
+        Orders order = orderRepository.findById(savedOrder.getId())
+                .orElseThrow(() -> new CustomException("존재하지 않는 주문이에요", HttpStatus.NOT_FOUND));
+
+        return new OrderResponseDto(order);    }
 
 }
