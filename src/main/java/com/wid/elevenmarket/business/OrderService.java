@@ -26,7 +26,7 @@ public class OrderService {
     @Transactional
     public OrderResponseDto processOrder(Long userId, Long productId, int orderQuantity) {
         // 조회
-        Product savedProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 상품이에요", HttpStatus.NOT_FOUND));
+        Product savedProduct = productRepository.findProductByIdWithPessimisticLock(productId).orElseThrow(() -> new CustomException("존재하지 않는 상품이에요", HttpStatus.NOT_FOUND));
         Users savedUser = usersRepository.findById(userId).orElseThrow(() -> new CustomException("존재하지 않는 사용자에요", HttpStatus.NOT_FOUND));
 
         //  주문 생성
@@ -35,7 +35,7 @@ public class OrderService {
 
         // 상품 재고 개수 감소
         savedProduct.decreaseStock(orderQuantity);
-        productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 상품이에요", HttpStatus.NOT_FOUND));
+
         Orders order = orderRepository.findById(savedOrder.getId())
                 .orElseThrow(() -> new CustomException("존재하지 않는 주문이에요", HttpStatus.NOT_FOUND));
 
