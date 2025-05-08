@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Order extends BaseTimeEntity {
+public class Orders extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,4 +27,9 @@ public class Order extends BaseTimeEntity {
     private Product product;
 
     private Long priceAtPurchase;
+
+    public static Orders createOrder(Users buyer, Product product, Long priceAtPurchase) {
+        return new Orders(null, buyer, product, priceAtPurchase);
+    }
+
 }
