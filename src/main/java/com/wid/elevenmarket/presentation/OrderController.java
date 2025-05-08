@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.wid.elevenmarket.global.response.CommonResponseEntity.success;
+
 @RestController
 @RequiredArgsConstructor
 public class OrderController {
@@ -17,6 +19,6 @@ public class OrderController {
 
     @PostMapping("/order")
     public CommonResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequestDto orderRequestDto) {
-        return CommonResponseEntity.success(orderService.processOrder(orderRequestDto.getBuyerId(), orderRequestDto.getProductId()));
+        return success(orderService.processOrder(orderRequestDto.getBuyerId(), orderRequestDto.getProductId(), orderRequestDto.getOrderQuantity()));
     }
 }

@@ -1,5 +1,6 @@
 package com.wid.elevenmarket.order;
 
+import com.wid.elevenmarket.global.exception.CustomException;
 import com.wid.elevenmarket.model.Orders;
 import com.wid.elevenmarket.model.Product;
 import com.wid.elevenmarket.model.Users;
@@ -12,14 +13,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Transactional  // DB 상태 롤백
+//@Transactional  // DB 상태 롤백
 public class OrderServiceTest {
 
     @Autowired
@@ -34,36 +42,84 @@ public class OrderServiceTest {
     @Autowired
     private OrderService orderService;
 
-    private Product product;
-    private Users user;
-
-    @BeforeEach
-    void setUp() {
-        // 매번 테스트 전에 새로운 사용자 및 상품 객체 준비
-        user = new Users(null, "TestUser", "testuser@example.com", "1234");
-        product = new Product(null, "TestProduct", "Test Description", 1000L, 500L, false, null, user, 10);
-
-        // 테스트 DB에 저장
-        usersRepository.save(user);
-        productRepository.save(product);
-    }
-
     @Test
     void testProcessOrder() {
-        Product savedProduct = productRepository.findById(product.getId()).orElseThrow();
-        Users savedUser = usersRepository.findById(user.getId()).orElseThrow();
 
-        // 실제 주문 처리 메소드 호출
-        OrderResponseDto savedOrder = orderService.processOrder(savedUser.getId(), savedProduct.getId());
+        List<Long> usersIds = new ArrayList<>();
+
+        for (int i=0; i<10; i++) {
+            Users user = new Users(null, "user" + i, "user" + i + "@example.com", "1234");
+            usersRepository.save(user);
+            usersIds.add(user.getId());
+        }
+
+        Users owner = usersRepository.findById(usersIds.get(0)).orElseThrow();
+
+        Product product = new Product(null, "TestProduct", "Test Description",
+                1000L, 500L, false,
+                null, owner, 100);
+
+        productRepository.save(product);
+
+        Product savedProduct = productRepository.findById(product.getId()).orElseThrow();
+        Long firstUser = usersIds.get(1);
+        Users savedUser = usersRepository.findById(firstUser).orElseThrow(() -> new CustomException("존재하지 않는 사용자에요", HttpStatus.NOT_FOUND));
+
+        // 실제 주문 처리 메소드 호출 : 1개 주문
+        OrderResponseDto savedOrder = orderService.processOrder(savedUser.getId(), savedProduct.getId(), 1);
 
         // 상품의 재고 감소 확인
         Product updatedProduct = productRepository.findById(savedProduct.getId()).orElseThrow();
-        assertEquals(9, updatedProduct.getQuantity());  // 재고가 1 감소해야 함
+        assertEquals(99, updatedProduct.getQuantity());  // 재고가 1 감소해야 함
 
         // 주문 객체 확인
         assertNotNull(savedOrder);
         assertEquals(savedUser.getId(), savedOrder.getBuyer().getId());
         assertEquals(savedProduct.getId(), savedOrder.getProduct().getId());
         assertEquals(savedProduct.getPrice(), savedOrder.getPriceAtPurchase());
+    }
+
+    // 동시성 테스트
+    @Test
+    void testOrderConcurrency() throws InterruptedException {
+        List<Long> usersIds = new ArrayList<>();
+
+        for (int i=0; i<10; i++) {
+            Users user = new Users(null, "user" + i, "user" + i + "@example.com", "1234");
+            usersRepository.save(user);
+            usersIds.add(user.getId());
+        }
+
+        Users owner = usersRepository.findById(usersIds.get(0)).orElseThrow();
+
+        Product product = new Product(null, "TestProduct", "Test Description",
+                1000L, 500L, false,
+                null, owner, 100);
+
+        productRepository.save(product);
+
+        int threadCount = 10;
+        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+
+        // 10명이 동시에 10개 주문
+        for (int i = 0; i < threadCount; i++) {
+            final Long userId = usersIds.get(i);
+            executorService.submit(() -> {
+                try {
+                    orderService.processOrder(userId, product.getId(), 10);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+
+        countDownLatch.await(); // 모두 끝날때까지 대기
+
+        Product savedProduct = productRepository.findById(product.getId()).orElseThrow();
+        System.out.println("최종 재고 = " + savedProduct.getQuantity());
+        assertEquals(0, savedProduct.getQuantity());
     }
 }
