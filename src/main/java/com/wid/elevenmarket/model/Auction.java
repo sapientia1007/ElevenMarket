@@ -1,7 +1,5 @@
 package com.wid.elevenmarket.model;
 
-import com.wid.elevenmarket.global.entity.BaseTimeEntity;
-import com.wid.elevenmarket.model.enums.AuctionStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,35 +8,34 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Bid extends BaseTimeEntity {
+public class Auction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bid_id")
+    @Column(name = "auction_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bidder_id", nullable = false)
-    private Users bidder;
+    @JoinColumn(name = "auctioneer_id", nullable = false)
+    private Users auctioneer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    private BigDecimal bid_price;
+    private BigDecimal auction_price;
 
-    private LocalDateTime bid_date;
+    private LocalDateTime startDate;
 
-    @Enumerated(EnumType.STRING)
-    private AuctionStatus status;
+    private LocalDateTime endDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auction_id", nullable = false)
-    private Auction auction;
-
+    @OneToMany(mappedBy = "auction")
+    private List<Bid> bids = new ArrayList<>();
 }
