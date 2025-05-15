@@ -26,10 +26,6 @@ public class Bid extends BaseTimeEntity {
     @JoinColumn(name = "bidder_id", nullable = false)
     private Users bidder;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
     private BigDecimal bid_price;
 
     private LocalDateTime bid_date;

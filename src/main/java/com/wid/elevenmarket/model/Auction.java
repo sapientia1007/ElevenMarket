@@ -1,12 +1,12 @@
 package com.wid.elevenmarket.model;
 
+import com.wid.elevenmarket.model.enums.AuctionStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,19 +23,21 @@ public class Auction {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auctioneer_id", nullable = false)
-    private Users auctioneer;
+    @JoinColumn(name = "winner_id")
+    private Users winner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    private BigDecimal auction_price;
+    private LocalDateTime start_date;
 
-    private LocalDateTime startDate;
+    private LocalDateTime end_date;
 
-    private LocalDateTime endDate;
+    @Enumerated(EnumType.STRING)
+    private AuctionStatus status;
 
     @OneToMany(mappedBy = "auction")
     private List<Bid> bids = new ArrayList<>();
+
 }
