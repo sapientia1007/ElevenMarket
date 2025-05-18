@@ -30,9 +30,9 @@ public class Auction {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    private LocalDateTime start_date;
+    private LocalDateTime startDate;
 
-    private LocalDateTime end_date;
+    private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING)
     private AuctionStatus status;
@@ -40,4 +40,7 @@ public class Auction {
     @OneToMany(mappedBy = "auction")
     private List<Bid> bids = new ArrayList<>();
 
+    public void changeStatus(AuctionStatus newStatus) {
+        this.status = newStatus;
+    }
 }

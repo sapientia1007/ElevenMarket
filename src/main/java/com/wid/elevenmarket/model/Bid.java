@@ -26,9 +26,9 @@ public class Bid extends BaseTimeEntity {
     @JoinColumn(name = "bidder_id", nullable = false)
     private Users bidder;
 
-    private BigDecimal bid_price;
+    private BigDecimal bidPrice;
 
-    private LocalDateTime bid_date;
+    private LocalDateTime bidDate;
 
     @Enumerated(EnumType.STRING)
     private AuctionStatus status;
