@@ -16,18 +16,32 @@ import java.util.List;
 public class AuctionScheduler {
     private final AuctionRepository auctionRepository;
 
+
     @Scheduled(fixedRate = 10_000)
     @Transactional
     public void processAuctions() {
         LocalDateTime now = LocalDateTime.now();
-        List<Auction> auctionToStart = auctionRepository.findByStatusAndStartDateLessThan(AuctionStatus.PENDING, now);
 
-        for (Auction auction : auctionToStart) {
-            auction.changeStatus(AuctionStatus.LIVE);
-            auctionRepository.save(auction);
+        int updatedCount = auctionRepository.updateStatusFromPendingToLive(
+                AuctionStatus.LIVE, AuctionStatus.PENDING, now);
+        System.out.println("경매 시작 상태 변경 건수: " + updatedCount);
+    }
 
-            Auction savedAuction = auctionRepository.findById(auction.getId()).orElseThrow();
-        }
+    @Scheduled(fixedRate = 10_000)
+    @Transactional
+    public void endWithWinnerAuctions() {
+        LocalDateTime now = LocalDateTime.now();
+
+        int updatedCount = auctionRepository.updateStatusFromLiveToEndWithWinner(now);
+        System.out.println("낙찰자 있는 경매 종료 처리 건수: " + updatedCount);
+    }
+
+    @Scheduled(fixedRate = 10_000)
+    @Transactional
+    public void cancelWithoutWinnerAuctions() {
+        LocalDateTime now = LocalDateTime.now();
+
+        int updatedCount = auctionRepository.updateStatusFromLiveToEndWitoutWinner(now);
+        System.out.println("낙찰자 없는 경매 실패 처리 건수: " + updatedCount);
     }
 }
-
