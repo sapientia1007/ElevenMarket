@@ -1,5 +1,6 @@
 package com.wid.elevenmarket.model;
 
+import com.wid.elevenmarket.global.entity.BaseTimeEntity;
 import com.wid.elevenmarket.model.enums.AuctionStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -15,7 +16,7 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Auction {
+public class Auction extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
