@@ -3,6 +3,7 @@ package com.wid.elevenmarket.business;
 import com.wid.elevenmarket.model.Auction;
 import com.wid.elevenmarket.model.Bid;
 import com.wid.elevenmarket.model.Users;
+import com.wid.elevenmarket.model.enums.AuctionStatus;
 import com.wid.elevenmarket.persistence.*;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
@@ -37,7 +38,7 @@ public class BidService {
 
             // 경매 상태 확인
             Auction savedAuction = auctionRepository.findById(auctionId).orElseThrow(() -> new IllegalStateException("경매가 존재하지 않습니다."));
-            if (!savedAuction.getStatus().equals("LIVE")) {
+            if (!savedAuction.getStatus().equals(AuctionStatus.LIVE)) {
                 throw new IllegalStateException("진행 중인 경매가 아닙니다.");
             }
 
