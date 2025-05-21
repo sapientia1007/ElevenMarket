@@ -12,11 +12,4 @@ public class AuctionService {
 
     private final AuctionRepository auctionRepository;
 
-    // 경매 등록
-
-
-    // 경매 시작 (스케줄링)
-
-
-    // 경매 종료 및 낙찰 확정
 }

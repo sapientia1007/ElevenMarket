@@ -30,11 +30,12 @@ public class Bid extends BaseTimeEntity {
 
     private LocalDateTime bidDate;
 
-    @Enumerated(EnumType.STRING)
-    private AuctionStatus status;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id", nullable = false)
     private Auction auction;
 
+    public static Bid createBid(Users user, BigDecimal bidPrice,
+                                LocalDateTime bidDate, Auction auction) {
+        return new Bid(null, user, bidPrice, bidDate, auction);
+    }
 }
