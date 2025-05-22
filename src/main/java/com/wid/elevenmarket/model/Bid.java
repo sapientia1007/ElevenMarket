@@ -34,8 +34,14 @@ public class Bid extends BaseTimeEntity {
     @JoinColumn(name = "auction_id", nullable = false)
     private Auction auction;
 
+    private boolean isWinner;
+
     public static Bid createBid(Users user, BigDecimal bidPrice,
                                 LocalDateTime bidDate, Auction auction) {
-        return new Bid(null, user, bidPrice, bidDate, auction);
+        return new Bid(null, user, bidPrice, bidDate, auction, false);
+    }
+
+    public void updateHighestBid() {
+        this.isWinner = !isWinner;
     }
 }
