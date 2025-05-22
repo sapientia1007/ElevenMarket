@@ -14,6 +14,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     List<Auction> findByStatusAndStartDateLessThan(AuctionStatus status, LocalDateTime startDate);
     List<Auction> findByEndDateLessThanAndWinnerIsNotNull(LocalDateTime endDate);
     List<Auction> findByEndDateLessThanAndWinnerIsNull(LocalDateTime endDate);
+    List<Auction> findByStatus(AuctionStatus status);
 
     @Modifying
     @Query("UPDATE Auction a SET a.status = :newStatus WHERE a.status = :currentStatus AND a.startDate <= :now")
@@ -21,9 +22,9 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
                          @Param("currentStatus") AuctionStatus currentStatus,
                          @Param("now") LocalDateTime now);
 
-    @Modifying
-    @Query("UPDATE Auction a SET a.status = 'END' WHERE a.winner IS NOT NULL AND a.endDate <= :now AND a.status <> 'END'")
-    int updateStatusFromLiveToEndWithWinner(@Param("now") LocalDateTime now);
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Auction a SET a.status = 'END' WHERE a.endDate <= :now AND a.status <> 'END'")
+    int updateStatusFromLiveToEnd(@Param("now") LocalDateTime now);
 
     @Modifying
     @Query("UPDATE Auction a SET a.status = 'FAILED' WHERE a.winner IS NULL AND a.endDate <= :now AND a.status <> 'FAILED'")

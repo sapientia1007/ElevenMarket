@@ -44,4 +44,12 @@ public class Auction extends BaseTimeEntity {
     public void changeStatus(AuctionStatus newStatus) {
         this.status = newStatus;
     }
+
+    public void setAuctionWinner(Users winner) {
+        this.winner = winner;
+    }
+
+    public static Auction openAuction(Product product, LocalDateTime startDate, LocalDateTime endDate) {
+        return new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>());
+    }
 }
