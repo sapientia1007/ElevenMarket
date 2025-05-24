@@ -44,7 +44,8 @@ public class AuctionScheduler {
                 auction.setAuctionWinner(highestBid.getBidder());
                 auction.changeStatus(AuctionStatus.WINNER);
             } catch (Exception e) {
-                System.out.println("경매 ID {"+auction.getId()+"}  처리 실패: " + e.getMessage());
+                System.out.println("경매 ID "+auction.getId()+"  처리 실패: " + e.getMessage());
+                throw e;
             }
         }
     }
@@ -54,7 +55,7 @@ public class AuctionScheduler {
     public void cancelWithoutWinnerAuctions() {
         LocalDateTime now = LocalDateTime.now();
 
-        int updatedCount = auctionRepository.updateStatusFromLiveToEndWitoutWinner(now);
+        int updatedCount = auctionRepository.updateStatusFromLiveToEndWithoutWinner(now);
         System.out.println("낙찰자 없는 경매 실패 처리 건수: " + updatedCount);
     }
 }

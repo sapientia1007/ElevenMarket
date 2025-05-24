@@ -42,16 +42,18 @@ public class BidService {
             if (savedAuction.getStatus() != AuctionStatus.LIVE) {
                 throw new CustomException("진행 중인 경매가 아닙니다.", HttpStatus.NOT_FOUND);
             }
-            // 입찰 저장
             Users savedUser = usersRepository.findById(userId).orElseThrow(() -> new CustomException("존재하지 않는 회원입니다", HttpStatus.NOT_FOUND));
-            Bid newBid = Bid.createBid(savedUser, bidPrice, LocalDateTime.now(), savedAuction);
-            bidRepository.save(newBid);
 
             // 최고가 조회
-            Bid highestBid = bidRepository.findHighestBidByAuctionId(savedAuction).orElseThrow(() -> new CustomException("최고가 조회 실패", HttpStatus.BAD_REQUEST));
+            Bid highestBid = bidRepository.findHighestBidByAuctionId(savedAuction)
+                    .orElse(null);
             if (highestBid != null && bidPrice.compareTo(highestBid.getBidPrice()) <= 0) {
                 throw new CustomException("현재 최고가보다 높은 금액만 입찰 가능합니다", HttpStatus.BAD_REQUEST);
             }
+
+            // 입찰 저장
+            Bid newBid = Bid.createBid(savedUser, bidPrice, LocalDateTime.now(), savedAuction);
+            bidRepository.save(newBid);
         } catch (InterruptedException e) {
             throw new CustomException("락 획득 실패 " + e, HttpStatus.INTERNAL_SERVER_ERROR);
         }

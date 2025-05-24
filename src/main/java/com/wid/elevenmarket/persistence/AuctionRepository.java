@@ -26,7 +26,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     @Query("UPDATE Auction a SET a.status = 'END' WHERE a.endDate <= :now AND a.status <> 'END'")
     int updateStatusFromLiveToEnd(@Param("now") LocalDateTime now);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Auction a SET a.status = 'FAILED' WHERE a.winner IS NULL AND a.endDate <= :now AND a.status <> 'FAILED'")
-    int updateStatusFromLiveToEndWitoutWinner(@Param("now") LocalDateTime now);
+    int updateStatusFromLiveToEndWithoutWinner(@Param("now") LocalDateTime now);
 }
