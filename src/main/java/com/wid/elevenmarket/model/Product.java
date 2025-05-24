@@ -31,8 +31,6 @@ public class Product extends BaseTimeEntity {
 
     private boolean isAuction;
 
-    private LocalDateTime auctionEndTime;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", nullable = false)
     private Users seller;
