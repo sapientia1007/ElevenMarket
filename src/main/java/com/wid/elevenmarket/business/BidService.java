@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BidService {
+
     private final RedissonClient redissonClient;
     private final AuctionRepository auctionRepository;
     private final BidRepository bidRepository;
@@ -63,5 +64,4 @@ public class BidService {
             }
         }
     }
-
 }

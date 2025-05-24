@@ -26,5 +26,4 @@ public class Users extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String password;
-
 }

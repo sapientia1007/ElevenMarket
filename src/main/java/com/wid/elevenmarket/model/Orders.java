@@ -31,5 +31,4 @@ public class Orders extends BaseTimeEntity {
     public static Orders createOrder(Users buyer, Product product, Long priceAtPurchase) {
         return new Orders(null, buyer, product, priceAtPurchase);
     }
-
 }

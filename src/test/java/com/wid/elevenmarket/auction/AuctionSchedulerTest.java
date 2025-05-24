@@ -22,9 +22,9 @@ import java.util.ArrayList;
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class AuctionSchedulerTest {
+
     @Autowired
     private AuctionScheduler auctionScheduler;
-
     @Autowired
     private UsersRepository usersRepository;
     @Autowired
@@ -34,6 +34,7 @@ public class AuctionSchedulerTest {
 
     @Test
     public void testProcessAuctions() {
+
         LocalDateTime now = LocalDateTime.now();
 
         Product product = productRepository.findById(1L).orElseThrow();

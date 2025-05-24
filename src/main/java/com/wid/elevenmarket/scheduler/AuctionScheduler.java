@@ -16,12 +16,14 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AuctionScheduler {
+
     private final AuctionRepository auctionRepository;
     private final BidRepository bidRepository;
 
     @Scheduled(fixedRate = 10_000)
     @Transactional
     public void processAuctions() {
+
         LocalDateTime now = LocalDateTime.now();
 
         int updatedCount = auctionRepository.updateStatusFromPendingToLive(
@@ -32,6 +34,7 @@ public class AuctionScheduler {
     @Scheduled(fixedRate = 10_000)
     @Transactional
     public void endWithWinnerAuctions() {
+
         LocalDateTime now = LocalDateTime.now();
 
         int updatedCount = auctionRepository.updateStatusFromLiveToEnd(now);

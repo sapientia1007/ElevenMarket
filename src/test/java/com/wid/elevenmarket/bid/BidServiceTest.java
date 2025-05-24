@@ -30,24 +30,19 @@ import java.util.concurrent.Executors;
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BidServiceTest {
+
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private UsersRepository usersRepository;
-
     @Autowired
     private OrderService orderService;
-
     @Autowired
     private BidService bidService;
-
     @Autowired
     private AuctionService auctionService;
-
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
-
     @Autowired
     private AuctionScheduler auctionScheduler;
 
@@ -56,6 +51,7 @@ public class BidServiceTest {
 
     @BeforeEach
     void setUp() {
+
         productRepository.deleteAll();
         usersRepository.deleteAll();
         usersIds = new ArrayList<>();
@@ -97,6 +93,7 @@ public class BidServiceTest {
 
     @Test
     void testBidConcurrency() throws InterruptedException {
+
         int threadCount = 15;
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);

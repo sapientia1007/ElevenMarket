@@ -33,13 +33,10 @@ public class OrderServiceTest {
 
     @Autowired
     private OrderRepository orderRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private UsersRepository usersRepository;
-
     @Autowired
     private OrderService orderService;
 
@@ -82,6 +79,7 @@ public class OrderServiceTest {
     // 동시성 테스트
     @Test
     void testOrderConcurrency() throws InterruptedException {
+
         List<Long> usersIds = new ArrayList<>();
 
         for (int i=0; i<10; i++) {
