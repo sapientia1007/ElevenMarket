@@ -41,6 +41,10 @@ public class Auction extends BaseTimeEntity {
     @OneToMany(mappedBy = "auction")
     private List<Bid> bids = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "highest_bid_id")
+    private Bid highestBid;
+
     public void changeStatus(AuctionStatus newStatus) {
         this.status = newStatus;
     }
@@ -49,7 +53,9 @@ public class Auction extends BaseTimeEntity {
         this.winner = winner;
     }
 
+    public void updateHighestBid(Bid newHighestBid) { this.highestBid = newHighestBid; }
+
     public static Auction openAuction(Product product, LocalDateTime startDate, LocalDateTime endDate) {
-        return new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>());
+        return new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>(), null);
     }
 }
