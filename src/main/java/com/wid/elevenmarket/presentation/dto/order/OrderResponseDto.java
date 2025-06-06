@@ -9,37 +9,13 @@ import lombok.Getter;
 public class OrderResponseDto {
     private Long id;
     private Long priceAtPurchase;
-    private BuyerResponse buyer;
-    private ProductResponse product;
+    private BuyerResponseDto buyer;
+    private ProductResponseDto product;
 
     public OrderResponseDto(Orders orders) {
         this.id = orders.getId();
         this.priceAtPurchase = orders.getPriceAtPurchase();
-        this.buyer = new BuyerResponse(orders.getBuyer());
-        this.product = new ProductResponse(orders.getProduct());
-    }
-
-    @Getter
-    public static class BuyerResponse {
-        private Long id;
-        private String userName;
-        private String email;
-
-        public BuyerResponse(Users buyer) {
-            this.id = buyer.getId();
-            this.userName = buyer.getUserName();
-            this.email = buyer.getEmail();
-        }
-    }
-
-    @Getter
-    public static class ProductResponse {
-        private Long id;
-        private String productName;
-
-        public ProductResponse(Product product) {
-            this.id = product.getId();
-            this.productName = product.getProductName();
-        }
+        this.buyer = new BuyerResponseDto(orders.getBuyer());
+        this.product = new ProductResponseDto(orders.getProduct());
     }
 }
