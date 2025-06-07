@@ -1,6 +1,7 @@
 package com.wid.elevenmarket.model;
 
 import com.wid.elevenmarket.global.entity.BaseTimeEntity;
+import com.wid.elevenmarket.model.enums.BidStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,8 +34,11 @@ public class Bid extends BaseTimeEntity {
     @JoinColumn(name = "auction_id", nullable = false)
     private Auction auction;
 
+    @Enumerated(EnumType.STRING)
+    private BidStatus status;
+
     public static Bid createBid(Users user, BigDecimal bidPrice,
                                 LocalDateTime bidDate, Auction auction) {
-        return new Bid(null, user, bidPrice, bidDate, auction);
+        return new Bid(null, user, bidPrice, bidDate, auction, BidStatus.ACTIVE);
     }
 }
