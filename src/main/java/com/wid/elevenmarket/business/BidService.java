@@ -5,7 +5,9 @@ import com.wid.elevenmarket.model.Auction;
 import com.wid.elevenmarket.model.Bid;
 import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.model.enums.AuctionStatus;
+import com.wid.elevenmarket.model.enums.BidStatus;
 import com.wid.elevenmarket.persistence.*;
+import com.wid.elevenmarket.presentation.dto.bid.resp.BidResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -64,4 +66,13 @@ public class BidService {
             }
         }
     }
+
+    // 입찰 취소
+    @Transactional
+    public BidResponseDto cancelBid(Long bidId) {
+        Bid savedBid = bidRepository.findById(bidId).orElseThrow(() -> new CustomException("존재하지 않는 입찰 정보에요", HttpStatus.NOT_FOUND));
+        savedBid.changeStatusBid(BidStatus.CANCELLED);
+        return new BidResponseDto(savedBid);
+    }
+
 }

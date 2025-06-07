@@ -3,7 +3,8 @@ package com.wid.elevenmarket.presentation.dto.order.resp;
 import com.wid.elevenmarket.model.Users;
 import lombok.Getter;
 
-public class BuyerResponseDto {    @Getter
+@Getter
+public class BuyerResponseDto {
     private Long id;
     private String userName;
     private String email;

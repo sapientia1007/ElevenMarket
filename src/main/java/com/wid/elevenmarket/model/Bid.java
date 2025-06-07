@@ -37,6 +37,10 @@ public class Bid extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private BidStatus status;
 
+    public void changeStatusBid(BidStatus status) {
+        this.status = status;
+    }
+
     public static Bid createBid(Users user, BigDecimal bidPrice,
                                 LocalDateTime bidDate, Auction auction) {
         return new Bid(null, user, bidPrice, bidDate, auction, BidStatus.ACTIVE);
