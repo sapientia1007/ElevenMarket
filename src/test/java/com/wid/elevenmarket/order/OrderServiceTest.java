@@ -1,21 +1,18 @@
 package com.wid.elevenmarket.order;
 
 import com.wid.elevenmarket.global.exception.CustomException;
-import com.wid.elevenmarket.model.Orders;
 import com.wid.elevenmarket.model.Product;
 import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.persistence.OrderRepository;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
 import com.wid.elevenmarket.business.OrderService;
-import com.wid.elevenmarket.presentation.dto.order.OrderResponseDto;
-import org.junit.jupiter.api.BeforeEach;
+import com.wid.elevenmarket.presentation.dto.order.resp.OrderResponseDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;

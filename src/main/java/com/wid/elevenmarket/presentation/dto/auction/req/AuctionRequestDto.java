@@ -1,4 +1,4 @@
-package com.wid.elevenmarket.presentation.dto.auction;
+package com.wid.elevenmarket.presentation.dto.auction.req;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

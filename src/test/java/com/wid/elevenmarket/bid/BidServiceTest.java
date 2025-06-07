@@ -7,7 +7,7 @@ import com.wid.elevenmarket.model.Product;
 import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
-import com.wid.elevenmarket.presentation.dto.auction.AuctionRequestDto;
+import com.wid.elevenmarket.presentation.dto.auction.req.AuctionRequestDto;
 import com.wid.elevenmarket.scheduler.AuctionScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

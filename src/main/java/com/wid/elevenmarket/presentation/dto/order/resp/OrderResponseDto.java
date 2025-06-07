@@ -1,8 +1,6 @@
-package com.wid.elevenmarket.presentation.dto.order;
+package com.wid.elevenmarket.presentation.dto.order.resp;
 
 import com.wid.elevenmarket.model.Orders;
-import com.wid.elevenmarket.model.Product;
-import com.wid.elevenmarket.model.Users;
 import lombok.Getter;
 
 @Getter

@@ -1,4 +1,4 @@
-package com.wid.elevenmarket.presentation.dto.order;
+package com.wid.elevenmarket.presentation.dto.order.req;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
