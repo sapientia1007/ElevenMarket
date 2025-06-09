@@ -7,6 +7,8 @@ import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.model.enums.AuctionStatus;
 import com.wid.elevenmarket.model.enums.BidStatus;
 import com.wid.elevenmarket.persistence.*;
+import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessReq;
+import com.wid.elevenmarket.presentation.dto.bid.resp.BidListResponseDto;
 import com.wid.elevenmarket.presentation.dto.bid.resp.BidResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -30,7 +33,10 @@ public class BidService {
     private final UsersRepository usersRepository;
 
     @Transactional
-    public void processBid(Long userId, Long auctionId, BigDecimal bidPrice) {
+    public BidResponseDto processBid(BidProcessReq bidProcessReq) {
+        Long userId = bidProcessReq.getUserId();
+        Long auctionId = bidProcessReq.getAuctionId();
+        BigDecimal bidPrice = bidProcessReq.getBidPrice();
         String lockKey = "auction:bid:lock:" + auctionId;
         RLock lock = redissonClient.getLock(lockKey);
         boolean locked = false;
@@ -57,6 +63,8 @@ public class BidService {
             // 입찰 저장
             Bid newBid = Bid.createBid(savedUser, bidPrice, LocalDateTime.now(), savedAuction);
             bidRepository.save(newBid);
+            updateHighestBid(auctionId, newBid);
+            return new BidResponseDto(newBid);
         } catch (InterruptedException e) {
             throw new CustomException("락 획득 실패 " + e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -75,4 +83,27 @@ public class BidService {
         return new BidResponseDto(savedBid);
     }
 
+    // 최고가 갱신
+    @Transactional
+    public void updateHighestBid(Long auctionId, Bid newHighestBid) {
+        Auction savedAuction = auctionRepository.findById(auctionId).orElseThrow(() -> new CustomException("존재하지 않은 경매에요", HttpStatus.NOT_FOUND));
+        Bid highestBid = bidRepository.findHighestBidByAuctionId(savedAuction).orElse(null);
+        BigDecimal newBidPrice = newHighestBid.getBidPrice();
+        if (highestBid != null && newBidPrice.compareTo(highestBid.getBidPrice()) > 0) {
+            savedAuction.updateHighestBid(newHighestBid);
+            auctionRepository.save(savedAuction);
+        }
+    }
+
+    // 사용자별 입찰 목록
+    public BidListResponseDto getBidListByUserId(Long userId) {
+        List<BidResponseDto> savedBidsByUserId = bidRepository.findBidsByBidder(userId).stream().map(BidResponseDto::new).toList();
+        return new BidListResponseDto(savedBidsByUserId);
+    }
+
+    // 경매별 입찰 목록
+    public BidListResponseDto getBidListByAuctionId(Long auctionId) {
+        List<BidResponseDto> savedBidsByAuctionId = bidRepository.findByAuctionId(auctionId).stream().map(BidResponseDto::new).toList();
+        return new BidListResponseDto(savedBidsByAuctionId);
+    }
 }

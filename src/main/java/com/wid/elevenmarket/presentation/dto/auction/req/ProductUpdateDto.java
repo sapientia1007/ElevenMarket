@@ -5,15 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuctionRequestDto {
-    Long productId;
-    LocalDateTime startDate;
-    LocalDateTime endDate;
-    Long price;
+public class ProductUpdateDto {
+    private String productName;
+    private String description;
+    private Long price;
+    private Long auctionStartPrice;
+    private Integer quantity;
 }
