@@ -2,6 +2,7 @@ package com.wid.elevenmarket.model;
 
 import com.wid.elevenmarket.global.entity.BaseTimeEntity;
 import com.wid.elevenmarket.model.enums.AuctionStatus;
+import com.wid.elevenmarket.presentation.dto.auction.req.AuctionUpdateDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -54,6 +55,11 @@ public class Auction extends BaseTimeEntity {
     }
 
     public void updateHighestBid(Bid newHighestBid) { this.highestBid = newHighestBid; }
+
+    public void updateAuctionInfo(AuctionUpdateDto auctionUpdateDto) {
+        this.startDate = auctionUpdateDto.getStartTime();
+        this.endDate = auctionUpdateDto.getEndTime();
+    }
 
     public static Auction openAuction(Product product, LocalDateTime startDate, LocalDateTime endDate) {
         return new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>(), null);
