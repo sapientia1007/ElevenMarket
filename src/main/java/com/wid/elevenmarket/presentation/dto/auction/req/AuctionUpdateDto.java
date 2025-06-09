@@ -1,6 +1,5 @@
 package com.wid.elevenmarket.presentation.dto.auction.req;
 
-import com.wid.elevenmarket.presentation.dto.auction.resp.ProductInfoDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +14,4 @@ import java.time.LocalDateTime;
 public class AuctionUpdateDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private ProductInfoDto product;
 }
