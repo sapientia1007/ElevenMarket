@@ -7,7 +7,8 @@ import com.wid.elevenmarket.model.Product;
 import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
-import com.wid.elevenmarket.presentation.dto.auction.AuctionRequestDto;
+import com.wid.elevenmarket.presentation.dto.auction.req.AuctionRequestDto;
+import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessReq;
 import com.wid.elevenmarket.scheduler.AuctionScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,9 +74,9 @@ public class BidServiceTest {
 
         LocalDateTime now = LocalDateTime.now();
         auctionService.openAuction(new AuctionRequestDto(1L,
-                now.minusMinutes(1), now.plusMinutes(5)));
+                now.minusMinutes(1), now.plusMinutes(5), 5000L));
         auctionService.openAuction(new AuctionRequestDto(2L,
-                now.minusMinutes(1), now.plusMinutes(8)));
+                now.minusMinutes(1), now.plusMinutes(8), 5000L));
 
         auctionIds.add(1L);
         auctionIds.add(2L);
@@ -105,7 +106,7 @@ public class BidServiceTest {
                 try {
                     Long auctionId = auctionIds.get(random.nextInt(auctionIds.size()));
                     BigDecimal price = BigDecimal.valueOf(1000 + random.nextInt(1000));
-                    bidService.processBid(userId, auctionId, price);
+                    bidService.processBid(BidProcessReq.builder().userId(userId).auctionId(auctionId).bidPrice(price).build());
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {

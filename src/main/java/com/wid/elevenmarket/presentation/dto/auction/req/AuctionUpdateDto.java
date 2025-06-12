@@ -1,4 +1,4 @@
-package com.wid.elevenmarket.presentation.dto.auction;
+package com.wid.elevenmarket.presentation.dto.auction.req;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuctionRequestDto {
-    Long productId;
-    LocalDateTime startDate;
-    LocalDateTime endDate;
+public class AuctionUpdateDto {
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 }

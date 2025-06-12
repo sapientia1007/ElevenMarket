@@ -42,7 +42,7 @@ public class AuctionSchedulerTest {
                 LocalDateTime.of(2025, 5, 18, 23, 36, 0),
                 LocalDateTime.of(2025, 5, 18, 23, 40, 0),
                 AuctionStatus.PENDING,
-                new ArrayList<>());
+                new ArrayList<>(), null);
 
         auctionRepository.save(auction1);
     }

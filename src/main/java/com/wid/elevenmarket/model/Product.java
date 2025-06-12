@@ -29,6 +29,7 @@ public class Product extends BaseTimeEntity {
 
     private Long auctionStartPrice;
 
+    @Column(nullable = false)
     private boolean isAuction;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,4 +45,10 @@ public class Product extends BaseTimeEntity {
         }
         this.quantity -= orderQuantity;
     }
+
+    public void auctionStart(Long price) {
+        this.isAuction = true;
+        this.auctionStartPrice = price != null ? price : this.price;
+    }
+
 }

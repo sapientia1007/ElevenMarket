@@ -2,6 +2,7 @@ package com.wid.elevenmarket.model;
 
 import com.wid.elevenmarket.global.entity.BaseTimeEntity;
 import com.wid.elevenmarket.model.enums.AuctionStatus;
+import com.wid.elevenmarket.presentation.dto.auction.req.AuctionUpdateDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,10 @@ public class Auction extends BaseTimeEntity {
     @OneToMany(mappedBy = "auction")
     private List<Bid> bids = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "highest_bid_id")
+    private Bid highestBid;
+
     public void changeStatus(AuctionStatus newStatus) {
         this.status = newStatus;
     }
@@ -49,7 +54,14 @@ public class Auction extends BaseTimeEntity {
         this.winner = winner;
     }
 
+    public void updateHighestBid(Bid newHighestBid) { this.highestBid = newHighestBid; }
+
+    public void updateAuctionInfo(AuctionUpdateDto auctionUpdateDto) {
+        this.startDate = auctionUpdateDto.getStartTime();
+        this.endDate = auctionUpdateDto.getEndTime();
+    }
+
     public static Auction openAuction(Product product, LocalDateTime startDate, LocalDateTime endDate) {
-        return new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>());
+        return new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>(), null);
     }
 }

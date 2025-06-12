@@ -1,6 +1,7 @@
 package com.wid.elevenmarket.model;
 
 import com.wid.elevenmarket.global.entity.BaseTimeEntity;
+import com.wid.elevenmarket.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,14 @@ public class Orders extends BaseTimeEntity {
 
     private Long priceAtPurchase;
 
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
     public static Orders createOrder(Users buyer, Product product, Long priceAtPurchase) {
-        return new Orders(null, buyer, product, priceAtPurchase);
+        return new Orders(null, buyer, product, priceAtPurchase, OrderStatus.RPOGRESS);
+    }
+
+    public void changeStatusOrder(OrderStatus status) {
+        this.status = status;
     }
 }
