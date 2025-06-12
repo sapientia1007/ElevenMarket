@@ -54,16 +54,20 @@ public class BidService {
             Users savedUser = usersRepository.findById(userId).orElseThrow(() -> new CustomException("존재하지 않는 회원입니다", HttpStatus.NOT_FOUND));
 
             // 최고가 조회
-            Bid highestBid = bidRepository.findHighestBidByAuctionId(savedAuction)
+            Bid currentHighestBid = bidRepository.findHighestBidByAuctionId(savedAuction.getId())
                     .orElse(null);
-            if (highestBid != null && bidPrice.compareTo(highestBid.getBidPrice()) <= 0) {
-                throw new CustomException("현재 최고가보다 높은 금액만 입찰 가능합니다", HttpStatus.BAD_REQUEST);
-            }
 
-            // 입찰 저장
             Bid newBid = Bid.createBid(savedUser, bidPrice, LocalDateTime.now(), savedAuction);
             bidRepository.save(newBid);
-            updateHighestBid(auctionId, newBid);
+            if (currentHighestBid == null) {
+                return new BidResponseDto(newBid);
+            }
+            if (bidPrice.compareTo(currentHighestBid.getBidPrice()) <= 0) {
+                throw new CustomException("현재 최고가보다 높은 금액만 입찰 가능합니다", HttpStatus.BAD_REQUEST);
+            }
+            if (bidPrice.compareTo(currentHighestBid.getBidPrice()) > 0) {
+                updateHighestBid(auctionId, newBid, currentHighestBid);
+            }
             return new BidResponseDto(newBid);
         } catch (InterruptedException e) {
             throw new CustomException("락 획득 실패 " + e, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -85,11 +89,16 @@ public class BidService {
 
     // 최고가 갱신
     @Transactional
-    public void updateHighestBid(Long auctionId, Bid newHighestBid) {
+    public void updateHighestBid(Long auctionId, Bid newHighestBid, Bid currentHighestBid) {
         Auction savedAuction = auctionRepository.findById(auctionId).orElseThrow(() -> new CustomException("존재하지 않은 경매에요", HttpStatus.NOT_FOUND));
-        Bid highestBid = bidRepository.findHighestBidByAuctionId(savedAuction).orElse(null);
+
+        currentHighestBid.changeStatusBid(BidStatus.DISQUALIFIED);
+        bidRepository.save(currentHighestBid);
+
         BigDecimal newBidPrice = newHighestBid.getBidPrice();
-        if (highestBid != null && newBidPrice.compareTo(highestBid.getBidPrice()) > 0) {
+        BigDecimal currentBidPrice = currentHighestBid.getBidPrice();
+
+        if (newBidPrice.compareTo(currentBidPrice) > 0) {
             savedAuction.updateHighestBid(newHighestBid);
             auctionRepository.save(savedAuction);
         }

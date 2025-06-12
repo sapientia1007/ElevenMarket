@@ -42,8 +42,8 @@ public class AuctionScheduler {
         List<Auction> AuctionsEnd = auctionRepository.findByStatus(AuctionStatus.END);
 
         for (Auction auction : AuctionsEnd) {
-            if (bidRepository.findHighestBidByAuctionId(auction).isPresent()) {
-                Bid highestBid = bidRepository.findHighestBidByAuctionId(auction).orElseThrow();
+            if (bidRepository.findHighestBidByAuctionId(auction.getId()).isPresent()) {
+                Bid highestBid = bidRepository.findHighestBidByAuctionId(auction.getId()).orElseThrow();
                 auction.setAuctionWinner(highestBid.getBidder());
                 auction.changeStatus(AuctionStatus.WINNER);
                 System.out.println("경매 ID "+auction.getId()+"  처리 성공: ");
