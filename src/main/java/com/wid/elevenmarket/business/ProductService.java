@@ -39,4 +39,9 @@ public class ProductService {
         return new ProductResponseDto(savedProduct);
     }
 
+    // 상품 조회
+    public ProductResponseDto getProductInfo(Long productId) {
+        Product savedProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 제품이에요", HttpStatus.NOT_FOUND));
+        return new ProductResponseDto(savedProduct);
+    }
 }
