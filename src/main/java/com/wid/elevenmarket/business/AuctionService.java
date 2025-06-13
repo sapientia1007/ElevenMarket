@@ -29,7 +29,7 @@ public class AuctionService {
     @Transactional
     public AuctionResponseDto openAuction(AuctionRequestDto auctionRequestDto) {
         try {
-            Product savedProduct = productRepository.findById(auctionRequestDto.getProductId()).orElse(null);
+            Product savedProduct = productRepository.findById(auctionRequestDto.getProductId()).orElseThrow(() -> new CustomException("존재하지 않는 상품이에요", HttpStatus.NOT_FOUND));
             savedProduct.auctionStart(auctionRequestDto.getPrice());
             productRepository.save(savedProduct);
             Auction toSaveAuction = Auction.openAuction(savedProduct, auctionRequestDto.getStartDate(), auctionRequestDto.getEndDate());

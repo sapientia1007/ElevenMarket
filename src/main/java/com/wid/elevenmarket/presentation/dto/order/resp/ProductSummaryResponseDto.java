@@ -4,12 +4,12 @@ import com.wid.elevenmarket.model.Product;
 import lombok.Getter;
 
 @Getter
-public class ProductResponseDto {
+public class ProductSummaryResponseDto {
     private Long id;
     private String productName;
     private String productDescription;
 
-    public ProductResponseDto(Product product) {
+    public ProductSummaryResponseDto(Product product) {
         this.id = product.getId();
         this.productName = product.getProductName();
         this.productDescription = product.getDescription();

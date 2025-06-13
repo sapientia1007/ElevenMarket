@@ -1,4 +1,4 @@
-package com.wid.elevenmarket.presentation.dto.auction.req;
+package com.wid.elevenmarket.presentation.dto.product.req;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductUpdateDto {
+public class ProductUpdateReqDto {
     private String productName;
     private String description;
     private Long price;
-    private Long auctionStartPrice;
     private Integer quantity;
 }

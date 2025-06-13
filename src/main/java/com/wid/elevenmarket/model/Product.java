@@ -1,6 +1,7 @@
 package com.wid.elevenmarket.model;
 
 import com.wid.elevenmarket.global.entity.BaseTimeEntity;
+import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateReqDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -49,6 +50,18 @@ public class Product extends BaseTimeEntity {
     public void auctionStart(Long price) {
         this.isAuction = true;
         this.auctionStartPrice = price != null ? price : this.price;
+    }
+
+    public static Product enrollProduct(String productName, String description, Long price,
+                                        Users seller,  Integer quantity) {
+        return new Product(null, productName, description, price, null, false, seller, quantity);
+    }
+
+    public void updateProductInfo(ProductUpdateReqDto productUpdateReqDto) {
+        this.productName = productUpdateReqDto.getProductName();
+        this.description = productUpdateReqDto.getDescription();
+        this.price = productUpdateReqDto.getPrice();
+        this.quantity = productUpdateReqDto.getQuantity();
     }
 
 }
