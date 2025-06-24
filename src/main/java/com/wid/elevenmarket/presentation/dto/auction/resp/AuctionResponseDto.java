@@ -18,4 +18,13 @@ public class AuctionResponseDto {
         this.startDate = auction.getStartDate();
         this.endDate = auction.getEndDate();
     }
+
+    public String testToString() {
+        return "AuctionResponseDto{" +
+                "id=" + id +
+                ", product=" + product.getProductName() +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                '}';
+    }
 }

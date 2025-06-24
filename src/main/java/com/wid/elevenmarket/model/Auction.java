@@ -70,8 +70,8 @@ public class Auction extends BaseTimeEntity {
     }
 
     public static Auction openAuction(Product product, LocalDateTime startDate, LocalDateTime endDate) {
-        Auction auctionTosave = new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>(), null, null);
-        product.getAuctions().add(auctionTosave);
-        return auctionTosave;
+        Auction auctionToSave = new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>(), null, null);
+        product.getAuctions().add(auctionToSave);
+        return auctionToSave;
     }
 }
