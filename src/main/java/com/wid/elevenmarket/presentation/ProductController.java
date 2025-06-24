@@ -31,4 +31,9 @@ public class ProductController {
     public CommonResponseEntity<ProductResponseDto> getProductInfo(@PathVariable Long productId) {
         return success(productService.getProductInfo(productId));
     }
+
+    @PatchMapping("/delete/{productId}")
+    public CommonResponseEntity<ProductResponseDto> deActiveProduct(@PathVariable Long productId) {
+        return success(productService.deActiveProduct(productId));
+    }
 }

@@ -42,7 +42,7 @@ public class BidService {
         boolean locked = false;
 
         try {
-            locked = lock.tryLock(3, 30, TimeUnit.SECONDS);
+            locked = lock.tryLock(5, 30, TimeUnit.SECONDS);
             if (!locked) {
                 throw new CustomException("다른 사용자가 입찰 중입니다.", HttpStatus.CONFLICT);
             }

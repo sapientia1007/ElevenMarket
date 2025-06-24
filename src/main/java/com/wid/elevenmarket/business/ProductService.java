@@ -44,4 +44,14 @@ public class ProductService {
         Product savedProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 제품이에요", HttpStatus.NOT_FOUND));
         return new ProductResponseDto(savedProduct);
     }
+
+    // 상품 논리적 삭제
+    @Transactional
+    public ProductResponseDto deActiveProduct(Long productId) {
+        Product savedProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 제품이에요", HttpStatus.NOT_FOUND));
+        savedProduct.markAsDeleted();
+        productRepository.save(savedProduct);
+        return new ProductResponseDto(savedProduct);
+    }
+
 }

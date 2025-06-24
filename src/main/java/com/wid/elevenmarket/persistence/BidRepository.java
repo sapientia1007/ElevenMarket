@@ -1,8 +1,8 @@
 package com.wid.elevenmarket.persistence;
 
-import com.wid.elevenmarket.model.Auction;
 import com.wid.elevenmarket.model.Bid;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,4 +19,8 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     @Query("SELECT b from Bid b WHERE b.auction.id = :auctionId AND b.status = 'ACTIVE'")
     List<Bid> findByAuctionId(@Param("auctionId") Long auctionId);
+
+    @Modifying
+    @Query("DELETE FROM Bid b WHERE b.auction.id IN :auctionIds")
+    void deleteByAuctionIds(@Param("auctionIds") List<Long> auctionIds);
 }

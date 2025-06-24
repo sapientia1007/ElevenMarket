@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,7 +44,7 @@ public class BidServiceConcurrencyTest {
         Users user0 = usersRepository.save(new Users(null, "user0", "user0@example.com", "1234"));
         Users user1 = usersRepository.save(new Users(null, "user1", "user1@example.com", "1234"));
         Users user2 = usersRepository.save(new Users(null, "user2", "user2@example.com", "1234"));
-        Product product = new Product(null, "Test Product", "Test Description", 1000L, null, false, user0, 100);
+        Product product = new Product(null, "Test Product", "Test Description", 1000L, null, false, new ArrayList<>(), user0, 100, null);
         productRepository.save(product);
         LocalDateTime startDate = LocalDateTime.now().minusMinutes(1);
         LocalDateTime endDate = LocalDateTime.now().plusHours(1);

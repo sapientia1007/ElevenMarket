@@ -7,7 +7,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -33,12 +35,22 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean isAuction;
 
+    @OneToMany(mappedBy = "product")
+    private List<Auction> auctions;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", nullable = false)
     private Users seller;
 
     @Column(nullable = false)
     private Integer quantity;
+
+    @Column
+    private LocalDate isDeleted;
+
+    public void markAsDeleted() {
+        this.isDeleted = LocalDate.now();
+    }
 
     public void decreaseStock(int orderQuantity) {
         if (this.quantity < orderQuantity) {
@@ -53,8 +65,8 @@ public class Product extends BaseTimeEntity {
     }
 
     public static Product enrollProduct(String productName, String description, Long price,
-                                        Users seller,  Integer quantity) {
-        return new Product(null, productName, description, price, null, false, seller, quantity);
+                                        Users seller, Integer quantity) {
+        return new Product(null, productName, description, price, null, false, new ArrayList<>(), seller, quantity, null);
     }
 
     public void updateProductInfo(ProductUpdateReqDto productUpdateReqDto) {
