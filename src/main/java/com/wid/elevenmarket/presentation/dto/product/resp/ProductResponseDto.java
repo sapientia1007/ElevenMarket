@@ -21,4 +21,15 @@ public class ProductResponseDto {
         this.seller = new UserResponseDto(product.getSeller());
         this.quantity = product.getQuantity();
     }
+
+    public String testToString() {
+        return "ProductResponseDto{"+
+                "id= " + id +
+                "name= " + productName +
+                "description= " + description +
+                "price= " + price +
+                "seller= " + seller.getUserName() +
+                "quantity= " +quantity +
+                "}";
+    }
 }
