@@ -4,8 +4,12 @@ import com.wid.elevenmarket.business.ProductService;
 import com.wid.elevenmarket.global.response.CommonResponseEntity;
 import com.wid.elevenmarket.presentation.dto.product.req.ProductRequestDto;
 import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateReqDto;
+import com.wid.elevenmarket.presentation.dto.product.resp.ProductListResponseDto;
 import com.wid.elevenmarket.presentation.dto.product.resp.ProductResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import static com.wid.elevenmarket.global.response.CommonResponseEntity.success;
@@ -35,5 +39,11 @@ public class ProductController {
     @PatchMapping("/delete/{productId}")
     public CommonResponseEntity<ProductResponseDto> deActiveProduct(@PathVariable Long productId) {
         return success(productService.deActiveProduct(productId));
+    }
+
+    @GetMapping("/search")
+    public CommonResponseEntity<ProductListResponseDto> searchProduct(@RequestParam String keyword,
+                                                                      @PageableDefault(size = 10, sort = "product_id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return success(productService.getProductsByKeyword(keyword, pageable));
     }
 }

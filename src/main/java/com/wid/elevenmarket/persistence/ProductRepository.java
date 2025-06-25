@@ -25,4 +25,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.isDeleted <= :date")
     Page<Product> findByIsDeletedBefore(LocalDate date, Pageable pageable);
+
+    @Query(
+            value = "SELECT * FROM product WHERE MATCH(product_name, description) AGAINST(:keyword IN BOOLEAN MODE)",
+            countQuery = "SELECT COUNT(*) FROM product WHERE MATCH(product_name, description) AGAINST(:keyword IN BOOLEAN MODE)",
+            nativeQuery = true
+    )
+    Page<Product> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.productName LIKE %:keyword% OR p.description LIKE %:keyword%")
+    Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }

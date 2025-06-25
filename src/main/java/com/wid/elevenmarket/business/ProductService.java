@@ -7,12 +7,14 @@ import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
 import com.wid.elevenmarket.presentation.dto.product.req.ProductRequestDto;
 import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateReqDto;
+import com.wid.elevenmarket.presentation.dto.product.resp.ProductListResponseDto;
 import com.wid.elevenmarket.presentation.dto.product.resp.ProductResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -52,6 +54,12 @@ public class ProductService {
         savedProduct.markAsDeleted();
         productRepository.save(savedProduct);
         return new ProductResponseDto(savedProduct);
+    }
+
+    // 상품 검색 - 키워드
+    public ProductListResponseDto getProductsByKeyword(String keyword, Pageable pageable) {
+        Page<ProductResponseDto> savedProducts = productRepository.findByKeyword(keyword, pageable).map(ProductResponseDto::new);
+        return new ProductListResponseDto(savedProducts.getContent(), savedProducts.getNumber(), savedProducts.getTotalPages(), savedProducts.getTotalElements());
     }
 
 }
