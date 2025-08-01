@@ -42,10 +42,13 @@ public class BidService {
         boolean locked = false;
 
         try {
-            locked = lock.tryLock(3, 6, TimeUnit.SECONDS);
+            locked = lock.tryLock(5, 30, TimeUnit.SECONDS);
             if (!locked) {
                 throw new CustomException("다른 사용자가 입찰 중입니다.", HttpStatus.CONFLICT);
             }
+
+            System.out.println("락 획득: 경매 " + auctionId + " / 사용자 " + userId);
+
             // 경매 상태 확인
             Auction savedAuction = auctionRepository.findById(auctionId).orElseThrow(() -> new CustomException("경매가 존재하지 않습니다.", HttpStatus.NOT_FOUND));
             if (savedAuction.getStatus() != AuctionStatus.LIVE) {

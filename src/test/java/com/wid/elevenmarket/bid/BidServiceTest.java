@@ -67,9 +67,9 @@ public class BidServiceTest {
 
         // 상품 및 경매 2개 생성
         Users owner = usersRepository.findById(usersIds.get(0)).orElseThrow();
-        Product product1 = new Product(null, "TestProduct1", "Desc", 1000L, 500L, false, owner, 100);
+        Product product1 = new Product(null, "TestProduct1", "Desc", 1000L, 500L, false, new ArrayList<>(), owner, 100, null);
         productRepository.save(product1);
-        Product product2 = new Product(null, "TestProduct2", "Desc", 1000L, 500L, false, owner, 100);
+        Product product2 = new Product(null, "TestProduct2", "Desc", 1000L, 500L, false, new ArrayList<>(), owner, 100, null);
         productRepository.save(product2);
 
         LocalDateTime now = LocalDateTime.now();

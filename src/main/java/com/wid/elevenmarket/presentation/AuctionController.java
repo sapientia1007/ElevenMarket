@@ -53,4 +53,9 @@ public class AuctionController {
     public CommonResponseEntity<AuctionListResponseDto> getAllAuctionList(){
         return success(auctionService.getAllAuctionList());
     }
+
+    @PatchMapping("/delete/{auctionId}")
+    public CommonResponseEntity<AuctionResponseDto> deActiveAuction(@PathVariable Long auctionId){
+            return success(auctionService.deActiveAuction(auctionId));
+    }
 }

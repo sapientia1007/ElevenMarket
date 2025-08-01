@@ -29,7 +29,7 @@ public class AuctionService {
     @Transactional
     public AuctionResponseDto openAuction(AuctionRequestDto auctionRequestDto) {
         try {
-            Product savedProduct = productRepository.findById(auctionRequestDto.getProductId()).orElse(null);
+            Product savedProduct = productRepository.findById(auctionRequestDto.getProductId()).orElseThrow(() -> new CustomException("존재하지 않는 상품이에요", HttpStatus.NOT_FOUND));
             savedProduct.auctionStart(auctionRequestDto.getPrice());
             productRepository.save(savedProduct);
             Auction toSaveAuction = Auction.openAuction(savedProduct, auctionRequestDto.getStartDate(), auctionRequestDto.getEndDate());
@@ -78,4 +78,14 @@ public class AuctionService {
         List<AuctionResponseDto> auctions = auctionRepository.findByWinnerId(winnerId).stream().map(AuctionResponseDto::new).toList();
         return new AuctionListResponseDto(auctions);
     }
+
+    // 경매 논리적 삭제
+    @Transactional
+    public AuctionResponseDto deActiveAuction(Long auctionId) {
+        Auction savedAuction = auctionRepository.findById(auctionId).orElseThrow(() -> new CustomException("존재하지 않는 경매에요", HttpStatus.NOT_FOUND));
+        savedAuction.markAsDeleted();
+        auctionRepository.save(savedAuction);
+        return new AuctionResponseDto(savedAuction);
+    }
+
 }

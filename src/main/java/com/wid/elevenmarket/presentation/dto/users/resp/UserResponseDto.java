@@ -7,9 +7,11 @@ import lombok.Getter;
 public class UserResponseDto {
     private Long id;
     private String userName;
+    private String email;
 
     public UserResponseDto(Users user) {
         this.id = user.getId();
         this.userName = user.getUserName();
+        this.email = user.getEmail();
     }
 }

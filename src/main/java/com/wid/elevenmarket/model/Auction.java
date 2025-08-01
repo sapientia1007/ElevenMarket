@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,13 @@ public class Auction extends BaseTimeEntity {
     @JoinColumn(name = "highest_bid_id")
     private Bid highestBid;
 
+    @Column
+    private LocalDate isDeleted;
+
+    public void markAsDeleted() {
+        this.isDeleted = LocalDate.now();
+    }
+
     public void changeStatus(AuctionStatus newStatus) {
         this.status = newStatus;
     }
@@ -62,6 +70,8 @@ public class Auction extends BaseTimeEntity {
     }
 
     public static Auction openAuction(Product product, LocalDateTime startDate, LocalDateTime endDate) {
-        return new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>(), null);
+        Auction auctionToSave = new Auction(null, null, product, startDate, endDate, AuctionStatus.PENDING, new ArrayList<>(), null, null);
+        product.getAuctions().add(auctionToSave);
+        return auctionToSave;
     }
 }

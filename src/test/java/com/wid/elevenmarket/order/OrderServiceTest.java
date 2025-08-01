@@ -51,7 +51,7 @@ public class OrderServiceTest {
         Users owner = usersRepository.findById(usersIds.get(0)).orElseThrow();
 
         Product product = new Product(null, "TestProduct", "Test Description",
-                1000L, 500L, false, owner, 100);
+                1000L, 500L, false, new ArrayList<>(), owner, 100, null);
 
         productRepository.save(product);
 
@@ -88,7 +88,7 @@ public class OrderServiceTest {
         Users owner = usersRepository.findById(usersIds.get(0)).orElseThrow();
 
         Product product = new Product(null, "TestProduct", "Test Description",
-                1000L, 500L, false, owner, 100);
+                1000L, 500L, false, new ArrayList<>(), owner, 100, null);
 
         productRepository.save(product);
 

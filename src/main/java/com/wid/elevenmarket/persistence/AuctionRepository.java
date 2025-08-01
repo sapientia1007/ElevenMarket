@@ -2,11 +2,14 @@ package com.wid.elevenmarket.persistence;
 
 import com.wid.elevenmarket.model.Auction;
 import com.wid.elevenmarket.model.enums.AuctionStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,4 +31,16 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
     @Query("SELECT a from Auction a WHERE a.id IN (SELECT b.auction.id from Bid b where b.bidder.id = :userId)")
     List<Auction> findByBidderId(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("DELETE FROM Auction a WHERE a.product.id IN :productIds")
+    void deleteByProductIds(@Param("productIds") List<Long> productIds);
+
+    @Modifying
+    @Query("DELETE FROM Auction a WHERE a.id IN :auctionIds")
+    void deleteByIds(@Param("auctionIds") List<Long> auctionIds);
+
+    @Query("SELECT a FROM Auction a WHERE a.isDeleted <= :date")
+    Page<Auction> findByIsDeletedBefore(LocalDate date, Pageable pageable);
+
 }

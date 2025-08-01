@@ -1,0 +1,54 @@
+package com.wid.elevenmarket.presentation;
+
+import com.wid.elevenmarket.business.ProductService;
+import com.wid.elevenmarket.global.response.CommonResponseEntity;
+import com.wid.elevenmarket.presentation.dto.product.req.ProductRequestDto;
+import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateReqDto;
+import com.wid.elevenmarket.presentation.dto.product.resp.ProductListResponseDto;
+import com.wid.elevenmarket.presentation.dto.product.resp.ProductResponseDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
+
+import static com.wid.elevenmarket.global.response.CommonResponseEntity.success;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/product")
+public class ProductController {
+
+    private final ProductService productService;
+
+    @PostMapping("/enroll")
+    public CommonResponseEntity<ProductResponseDto> enrollProduct(@RequestBody ProductRequestDto productRequestDto) {
+        return success(productService.enrollProduct(productRequestDto));
+    }
+
+    @PatchMapping("/edit/{productId}")
+    public CommonResponseEntity<ProductResponseDto> editProduct(@PathVariable Long productId, @RequestBody ProductUpdateReqDto productUpdateReqDto) {
+        return success(productService.editProductInfo(productId, productUpdateReqDto));
+    }
+
+    @GetMapping("/{productId}")
+    public CommonResponseEntity<ProductResponseDto> getProductInfo(@PathVariable Long productId) {
+        return success(productService.getProductInfo(productId));
+    }
+
+    @PatchMapping("/delete/{productId}")
+    public CommonResponseEntity<ProductResponseDto> deActiveProduct(@PathVariable Long productId) {
+        return success(productService.deActiveProduct(productId));
+    }
+
+    @GetMapping("/search")
+    public CommonResponseEntity<ProductListResponseDto> searchProduct(@RequestParam String keyword,
+                                                                      @PageableDefault(size = 10, sort = "product_id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return success(productService.getProductsByKeyword(keyword, pageable));
+    }
+
+    @GetMapping("/random-main")
+    public CommonResponseEntity<ProductListResponseDto> getRandomProducts(@PageableDefault(size = 3, sort = "product_id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return success(productService.getRandomProductsWithPaging(pageable));
+    }
+}
