@@ -46,4 +46,9 @@ public class ProductController {
                                                                       @PageableDefault(size = 10, sort = "product_id", direction = Sort.Direction.DESC) Pageable pageable) {
         return success(productService.getProductsByKeyword(keyword, pageable));
     }
+
+    @GetMapping("/random-main")
+    public CommonResponseEntity<ProductListResponseDto> getRandomProducts(@PageableDefault(size = 3, sort = "product_id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return success(productService.getRandomProductsWithPaging(pageable));
+    }
 }

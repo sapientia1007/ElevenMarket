@@ -35,4 +35,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.productName LIKE %:keyword% OR p.description LIKE %:keyword%")
     Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT p.id FROM Product p WHERE p.isDeleted IS NULL")
+    List<Long> findAllActiveProductIds();
+
 }
