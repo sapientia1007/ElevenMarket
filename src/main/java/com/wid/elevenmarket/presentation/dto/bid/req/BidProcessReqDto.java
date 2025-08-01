@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Builder
 @Getter
-public class BidProcessReq {
+public class BidProcessReqDto {
     public Long userId;
     public Long auctionId;
     public BigDecimal bidPrice;

@@ -7,7 +7,7 @@ import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.model.enums.AuctionStatus;
 import com.wid.elevenmarket.model.enums.BidStatus;
 import com.wid.elevenmarket.persistence.*;
-import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessReq;
+import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessReqDto;
 import com.wid.elevenmarket.presentation.dto.bid.resp.BidListResponseDto;
 import com.wid.elevenmarket.presentation.dto.bid.resp.BidResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +33,10 @@ public class BidService {
     private final UsersRepository usersRepository;
 
     @Transactional
-    public BidResponseDto processBid(BidProcessReq bidProcessReq) {
-        Long userId = bidProcessReq.getUserId();
-        Long auctionId = bidProcessReq.getAuctionId();
-        BigDecimal bidPrice = bidProcessReq.getBidPrice();
+    public BidResponseDto processBid(BidProcessReqDto bidProcessReqDto) {
+        Long userId = bidProcessReqDto.getUserId();
+        Long auctionId = bidProcessReqDto.getAuctionId();
+        BigDecimal bidPrice = bidProcessReqDto.getBidPrice();
         String lockKey = "auction:bid:lock:" + auctionId;
         RLock lock = redissonClient.getLock(lockKey);
         boolean locked = false;
