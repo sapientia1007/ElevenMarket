@@ -6,6 +6,7 @@ import com.wid.elevenmarket.presentation.dto.product.req.ProductRequestDto;
 import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateReqDto;
 import com.wid.elevenmarket.presentation.dto.product.resp.ProductListResponseDto;
 import com.wid.elevenmarket.presentation.dto.product.resp.ProductResponseDto;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -48,7 +49,8 @@ public class ProductController {
     }
 
     @GetMapping("/random-main")
-    public CommonResponseEntity<ProductListResponseDto> getRandomProducts(@PageableDefault(size = 3, sort = "product_id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return success(productService.getRandomProductsWithPaging(pageable));
+    public CommonResponseEntity<ProductListResponseDto> getRandomProducts(HttpSession session,
+                                                                          @PageableDefault(size = 3, sort = "product_id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return success(productService.getRandomProductsWithPaging(session.getId(), pageable));
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +36,7 @@ public class ProductService {
     private final StringRedisTemplate redisTemplate;
 
     private static final String PRODUCT_ALL_IDS_KEY = "product:all:ids";
-
+    private static final long REDIS_TTL_SECONDS = 60*5;
 
     // 상품 등록
     @Transactional
@@ -76,40 +77,50 @@ public class ProductService {
         return new ProductListResponseDto(savedProducts.getContent(), savedProducts.getNumber(), savedProducts.getTotalPages(), savedProducts.getTotalElements());
     }
 
-    // 활성화된 상품만 Redis에 저장
+    // 활성화된 상품만 Redis에 랜덤 순서로 저장
     @Transactional
-    public void syncRedisProductIds() {
+    public void syncRedisProductIds(String sessionId) {
         List<Long> activeProductIds = productRepository.findAllActiveProductIds();
-        redisTemplate.delete(PRODUCT_ALL_IDS_KEY);
+
         if (!activeProductIds.isEmpty()) {
-            redisTemplate.opsForSet().add(
-                    PRODUCT_ALL_IDS_KEY,
-                    activeProductIds.stream().map(String::valueOf).toArray(String[]::new)
+            Collections.shuffle(activeProductIds);
+
+            String redisKey = PRODUCT_ALL_IDS_KEY + sessionId;
+            redisTemplate.delete(redisKey);
+            redisTemplate.opsForList().rightPushAll(
+                    redisKey,
+                    activeProductIds.stream().map(String::valueOf).toList()
             );
+
+            redisTemplate.expire(redisKey, Duration.ofSeconds(REDIS_TTL_SECONDS)); // TTL 적용
         }
     }
 
     // 메인페이지 랜덤+페이징 조회
-    public ProductListResponseDto getRandomProductsWithPaging(Pageable pageable) {
-        Set<String> allIds = redisTemplate.opsForSet().members(PRODUCT_ALL_IDS_KEY);
-        if (allIds == null || allIds.isEmpty()) {
-            syncRedisProductIds();
-            allIds =  redisTemplate.opsForSet().members(PRODUCT_ALL_IDS_KEY);
-            if (allIds == null || allIds.isEmpty()) {
+    public ProductListResponseDto getRandomProductsWithPaging(String sessionId, Pageable pageable) {
+        String redisKey = PRODUCT_ALL_IDS_KEY + sessionId;
+
+        Long totalSize = redisTemplate.opsForList().size(redisKey);
+        if (totalSize == null || totalSize == 0) {
+            syncRedisProductIds(sessionId);
+            totalSize =  redisTemplate.opsForList().size(redisKey);
+            if (totalSize == null || totalSize == 0) {
                 return new ProductListResponseDto(Collections.emptyList(),
                         pageable.getPageNumber(), 0, 0);
             }
         }
 
-        List<String> idList = new ArrayList<>(allIds);
-        Collections.shuffle(idList);
-
         // 페이징: offset, limit
         int startIdx = (int) pageable.getOffset();
-        int endIdx = Math.min(startIdx + pageable.getPageSize(), idList.size());
+        int endIdx = Math.min(startIdx + pageable.getPageSize(), totalSize.intValue());
 
-        List<Long> pickedIds = idList.subList(startIdx, endIdx)
-                .stream()
+        List<String> idStrings = redisTemplate.opsForList().range(redisKey, startIdx, endIdx - 1);
+        if (idStrings == null || idStrings.isEmpty()) {
+            return new ProductListResponseDto(Collections.emptyList(),
+                    pageable.getPageNumber(), 0, totalSize.intValue());
+        }
+
+        List<Long> pickedIds = idStrings.stream()
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
 
@@ -119,13 +130,13 @@ public class ProductService {
                 .map(ProductResponseDto::new)
                 .collect(Collectors.toList());
 
-        int totalPages = (int) Math.ceil(idList.size() / (double) pageable.getPageSize());
+        int totalPages = (int) Math.ceil(totalSize / (double) pageable.getPageSize());
 
         return new ProductListResponseDto(
                 responseDtoList,
                 pageable.getPageNumber(),
                 totalPages,
-                idList.size()
+                totalSize.intValue()
         );
     }
 }
