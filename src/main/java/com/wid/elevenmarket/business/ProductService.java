@@ -32,7 +32,7 @@ public class ProductService {
     private final StringRedisTemplate redisTemplate;
 
     private static final String PRODUCT_ALL_IDS_KEY = "product:all:ids";
-    private static final long REDIS_TTL_SECONDS = 60*5;
+    private static final long REDIS_TTL_SECONDS = 60*15;
 
     // 상품 등록
     @Transactional
