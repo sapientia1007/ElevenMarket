@@ -1,7 +1,7 @@
 package com.wid.elevenmarket.model;
 
 import com.wid.elevenmarket.global.entity.BaseTimeEntity;
-import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateReqDto;
+import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -69,11 +69,11 @@ public class Product extends BaseTimeEntity {
         return new Product(null, productName, description, price, null, false, new ArrayList<>(), seller, quantity, null);
     }
 
-    public void updateProductInfo(ProductUpdateReqDto productUpdateReqDto) {
-        this.productName = productUpdateReqDto.getProductName();
-        this.description = productUpdateReqDto.getDescription();
-        this.price = productUpdateReqDto.getPrice();
-        this.quantity = productUpdateReqDto.getQuantity();
+    public void updateProductInfo(ProductUpdateDto productUpdateDto) {
+        this.productName = productUpdateDto.getProductName();
+        this.description = productUpdateDto.getDescription();
+        this.price = productUpdateDto.getPrice();
+        this.quantity = productUpdateDto.getQuantity();
     }
 
 }

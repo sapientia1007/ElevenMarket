@@ -6,24 +6,20 @@ import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
 import com.wid.elevenmarket.presentation.dto.product.req.ProductRequestDto;
-import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateReqDto;
+import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateDto;
 import com.wid.elevenmarket.presentation.dto.product.resp.ProductListResponseDto;
 import com.wid.elevenmarket.presentation.dto.product.resp.ProductResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,9 +45,9 @@ public class ProductService {
 
     // 상품 수정
     @Transactional
-    public ProductResponseDto editProductInfo(Long productId, ProductUpdateReqDto productUpdateReqDto) {
+    public ProductResponseDto editProductInfo(Long productId, ProductUpdateDto productUpdateDto) {
         Product savedProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 제품이에요", HttpStatus.NOT_FOUND));
-        savedProduct.updateProductInfo(productUpdateReqDto);
+        savedProduct.updateProductInfo(productUpdateDto);
         productRepository.save(savedProduct);
         return new ProductResponseDto(savedProduct);
     }
