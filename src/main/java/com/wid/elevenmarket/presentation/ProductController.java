@@ -50,7 +50,7 @@ public class ProductController {
 
     @GetMapping("/random-main")
     public CommonResponseEntity<ProductListResponseDto> getRandomProducts(HttpSession session,
-                                                                          @PageableDefault(size = 3, sort = "product_id", direction = Sort.Direction.DESC) Pageable pageable) {
+                                                                          @PageableDefault(size = 3) Pageable pageable) {
         return success(productService.getRandomProductsWithPaging(session.getId(), pageable));
     }
 }

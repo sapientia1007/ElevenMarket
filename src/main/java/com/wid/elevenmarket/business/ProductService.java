@@ -80,63 +80,82 @@ public class ProductService {
     // 활성화된 상품만 Redis에 랜덤 순서로 저장
     @Transactional
     public void syncRedisProductIds(String sessionId) {
-        List<Long> activeProductIds = productRepository.findAllActiveProductIds();
+        try {
+            List<Long> activeProductIds = productRepository.findAllActiveProductIds();
 
-        if (!activeProductIds.isEmpty()) {
-            Collections.shuffle(activeProductIds);
+            if (!activeProductIds.isEmpty()) {
+                Collections.shuffle(activeProductIds);
 
-            String redisKey = PRODUCT_ALL_IDS_KEY + sessionId;
-            redisTemplate.delete(redisKey);
-            redisTemplate.opsForList().rightPushAll(
-                    redisKey,
-                    activeProductIds.stream().map(String::valueOf).toList()
-            );
+                String redisKey = PRODUCT_ALL_IDS_KEY + sessionId;
+                redisTemplate.delete(redisKey);
+                redisTemplate.opsForList().rightPushAll(
+                        redisKey,
+                        activeProductIds.stream().map(String::valueOf).toList()
+                );
 
-            redisTemplate.expire(redisKey, Duration.ofSeconds(REDIS_TTL_SECONDS)); // TTL 적용
+                redisTemplate.expire(redisKey, Duration.ofSeconds(REDIS_TTL_SECONDS)); // TTL 적용
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     // 메인페이지 랜덤+페이징 조회
     public ProductListResponseDto getRandomProductsWithPaging(String sessionId, Pageable pageable) {
         String redisKey = PRODUCT_ALL_IDS_KEY + sessionId;
 
-        Long totalSize = redisTemplate.opsForList().size(redisKey);
-        if (totalSize == null || totalSize == 0) {
-            syncRedisProductIds(sessionId);
-            totalSize =  redisTemplate.opsForList().size(redisKey);
+        try {
+            Long totalSize = redisTemplate.opsForList().size(redisKey);
             if (totalSize == null || totalSize == 0) {
-                return new ProductListResponseDto(Collections.emptyList(),
-                        pageable.getPageNumber(), 0, 0);
+                syncRedisProductIds(sessionId);
+                totalSize = redisTemplate.opsForList().size(redisKey);
+                if (totalSize == null || totalSize == 0) {
+                    return new ProductListResponseDto(Collections.emptyList(),
+                            pageable.getPageNumber(), 0, 0);
+                }
             }
+
+            // 페이징: offset, limit
+            int startIdx = (int) pageable.getOffset();
+            int endIdx = Math.min(startIdx + pageable.getPageSize(), totalSize.intValue());
+
+            List<String> idStrings = redisTemplate.opsForList().range(redisKey, startIdx, endIdx - 1);
+            if (idStrings == null || idStrings.isEmpty()) {
+                return new ProductListResponseDto(Collections.emptyList(),
+                        pageable.getPageNumber(), 0, totalSize.intValue());
+            }
+
+            List<Long> pickedIds = idStrings.stream()
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+
+            List<Product> content = productRepository.findAllById(pickedIds);
+
+            List<ProductResponseDto> responseDtoList = content.stream()
+                    .map(ProductResponseDto::new)
+                    .collect(Collectors.toList());
+
+            int totalPages = (int) Math.ceil(totalSize / (double) pageable.getPageSize());
+
+            return new ProductListResponseDto(
+                    responseDtoList,
+                    pageable.getPageNumber(),
+                    totalPages,
+                    totalSize.intValue()
+            );
+        } catch (Exception e) { // Redis 장애 발생 시, DB에서 기본 조회로 Fallback
+            Page<Product> savedContents = productRepository.findActiveProductsOrderByUpdatedAtDesc(pageable);
+            List<ProductResponseDto> responseDtoList = savedContents.stream()
+                    .map(ProductResponseDto::new)
+                    .collect(Collectors.toList());
+
+            return new ProductListResponseDto(
+                    responseDtoList,
+                    pageable.getPageNumber(),
+                    savedContents.getTotalPages(),
+                    savedContents.getTotalElements()
+            );
         }
-
-        // 페이징: offset, limit
-        int startIdx = (int) pageable.getOffset();
-        int endIdx = Math.min(startIdx + pageable.getPageSize(), totalSize.intValue());
-
-        List<String> idStrings = redisTemplate.opsForList().range(redisKey, startIdx, endIdx - 1);
-        if (idStrings == null || idStrings.isEmpty()) {
-            return new ProductListResponseDto(Collections.emptyList(),
-                    pageable.getPageNumber(), 0, totalSize.intValue());
-        }
-
-        List<Long> pickedIds = idStrings.stream()
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
-
-        List<Product> content = productRepository.findAllById(pickedIds);
-
-        List<ProductResponseDto> responseDtoList = content.stream()
-                .map(ProductResponseDto::new)
-                .collect(Collectors.toList());
-
-        int totalPages = (int) Math.ceil(totalSize / (double) pageable.getPageSize());
-
-        return new ProductListResponseDto(
-                responseDtoList,
-                pageable.getPageNumber(),
-                totalPages,
-                totalSize.intValue()
-        );
     }
 }
