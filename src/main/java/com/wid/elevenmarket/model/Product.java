@@ -52,7 +52,7 @@ public class Product extends BaseTimeEntity {
         this.isDeleted = LocalDate.now();
     }
 
-    public void decreaseStock(int orderQuantity) {
+    public void changeStock(int orderQuantity) {
         if (this.quantity < orderQuantity) {
             throw new IllegalStateException("재고가 부족합니다. 현재 재고: " + this.quantity);
         }

@@ -34,11 +34,11 @@ public class OrderService {
         Users savedUser = usersRepository.findById(userId).orElseThrow(() -> new CustomException("존재하지 않는 사용자에요", HttpStatus.NOT_FOUND));
 
         //  주문 생성
-        Orders savedOrder = Orders.createOrder(savedUser, savedProduct, savedProduct.getPrice());
+        Orders savedOrder = Orders.createOrder(savedUser, savedProduct, savedProduct.getPrice(), orderQuantity);
         orderRepository.save(savedOrder);
 
         // 상품 재고 개수 감소
-        savedProduct.decreaseStock(orderQuantity);
+        savedProduct.changeStock(orderQuantity);
 
         Orders order = orderRepository.findById(savedOrder.getId())
                 .orElseThrow(() -> new CustomException("존재하지 않는 주문이에요", HttpStatus.NOT_FOUND));
@@ -64,6 +64,8 @@ public class OrderService {
     public OrderResponseDto cancelOrder(Long orderId){
         Orders savedOrder = orderRepository.findById(orderId).orElseThrow(() -> new CustomException("존재하지 않는 주문번호에요", HttpStatus.NOT_FOUND));
         savedOrder.changeStatusOrder(OrderStatus.CANCELLED);
+        savedOrder.getProduct().changeStock(-savedOrder.cancelOrder());
+        orderRepository.save(savedOrder);
         return new OrderResponseDto(savedOrder);
     }
 }
