@@ -32,11 +32,17 @@ public class Orders extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    public static Orders createOrder(Users buyer, Product product, Long priceAtPurchase) {
-        return new Orders(null, buyer, product, priceAtPurchase, OrderStatus.RPOGRESS);
+    private int quantity;
+
+    public static Orders createOrder(Users buyer, Product product, Long priceAtPurchase, int quantity) {
+        return new Orders(null, buyer, product, priceAtPurchase, OrderStatus.RPOGRESS, quantity);
     }
 
     public void changeStatusOrder(OrderStatus status) {
         this.status = status;
+    }
+
+    public int cancelOrder() {
+        return this.quantity;
     }
 }

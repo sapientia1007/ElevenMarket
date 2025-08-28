@@ -39,4 +39,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p.id FROM Product p WHERE p.isDeleted IS NULL")
     List<Long> findAllActiveProductIds();
 
+    @Query("SELECT p from Product p where p.isDeleted IS NULL order by p.updateAt desc")
+    Page<Product> findActiveProductsOrderByUpdatedAtDesc(Pageable pageable);
+
 }

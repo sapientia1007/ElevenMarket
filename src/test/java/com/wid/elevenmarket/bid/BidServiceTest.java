@@ -8,7 +8,7 @@ import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
 import com.wid.elevenmarket.presentation.dto.auction.req.AuctionRequestDto;
-import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessReqDto;
+import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessRequestDto;
 import com.wid.elevenmarket.scheduler.AuctionScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,7 +106,7 @@ public class BidServiceTest {
                 try {
                     Long auctionId = auctionIds.get(random.nextInt(auctionIds.size()));
                     BigDecimal price = BigDecimal.valueOf(1000 + random.nextInt(1000));
-                    bidService.processBid(BidProcessReqDto.builder().userId(userId).auctionId(auctionId).bidPrice(price).build());
+                    bidService.processBid(BidProcessRequestDto.builder().userId(userId).auctionId(auctionId).bidPrice(price).build());
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {

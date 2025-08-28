@@ -3,9 +3,10 @@ package com.wid.elevenmarket.presentation;
 import com.wid.elevenmarket.business.ProductService;
 import com.wid.elevenmarket.global.response.CommonResponseEntity;
 import com.wid.elevenmarket.presentation.dto.product.req.ProductRequestDto;
-import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateReqDto;
+import com.wid.elevenmarket.presentation.dto.product.req.ProductUpdateDto;
 import com.wid.elevenmarket.presentation.dto.product.resp.ProductListResponseDto;
 import com.wid.elevenmarket.presentation.dto.product.resp.ProductResponseDto;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,8 +28,8 @@ public class ProductController {
     }
 
     @PatchMapping("/edit/{productId}")
-    public CommonResponseEntity<ProductResponseDto> editProduct(@PathVariable Long productId, @RequestBody ProductUpdateReqDto productUpdateReqDto) {
-        return success(productService.editProductInfo(productId, productUpdateReqDto));
+    public CommonResponseEntity<ProductResponseDto> editProduct(@PathVariable Long productId, @RequestBody ProductUpdateDto productUpdateDto) {
+        return success(productService.editProductInfo(productId, productUpdateDto));
     }
 
     @GetMapping("/{productId}")
@@ -48,7 +49,8 @@ public class ProductController {
     }
 
     @GetMapping("/random-main")
-    public CommonResponseEntity<ProductListResponseDto> getRandomProducts(@PageableDefault(size = 3, sort = "product_id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return success(productService.getRandomProductsWithPaging(pageable));
+    public CommonResponseEntity<ProductListResponseDto> getRandomProducts(HttpSession session,
+                                                                          @PageableDefault(size = 3) Pageable pageable) {
+        return success(productService.getRandomProductsWithPaging(session.getId(), pageable));
     }
 }

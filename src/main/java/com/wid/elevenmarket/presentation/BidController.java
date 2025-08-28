@@ -2,7 +2,7 @@ package com.wid.elevenmarket.presentation;
 
 import com.wid.elevenmarket.business.BidService;
 import com.wid.elevenmarket.global.response.CommonResponseEntity;
-import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessReqDto;
+import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessRequestDto;
 import com.wid.elevenmarket.presentation.dto.bid.resp.BidListResponseDto;
 import com.wid.elevenmarket.presentation.dto.bid.resp.BidResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,8 @@ public class BidController {
     private final BidService bidService;
 
     @PostMapping("/process")
-    public CommonResponseEntity<BidResponseDto> processBid(@RequestBody BidProcessReqDto bidProcessReqDto) {
-        return success(bidService.processBid(bidProcessReqDto));
+    public CommonResponseEntity<BidResponseDto> processBid(@RequestBody BidProcessRequestDto bidProcessRequestDto) {
+        return success(bidService.processBid(bidProcessRequestDto));
     }
 
     @PatchMapping("/cancel/{bidId}")

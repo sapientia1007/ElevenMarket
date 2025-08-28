@@ -9,7 +9,7 @@ import com.wid.elevenmarket.persistence.AuctionRepository;
 import com.wid.elevenmarket.persistence.BidRepository;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
-import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessReqDto;
+import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessRequestDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -61,7 +61,7 @@ public class BidServiceConcurrencyTest {
             executor.submit(() -> {
                 try {
                     BigDecimal bidPrice = BigDecimal.valueOf(1000 + (int)(Math.random() * 1000));
-                    bidService.processBid(BidProcessReqDto.builder().userId(userId).auctionId(auction.getId()).bidPrice(bidPrice).build());
+                    bidService.processBid(BidProcessRequestDto.builder().userId(userId).auctionId(auction.getId()).bidPrice(bidPrice).build());
                     System.out.println("입찰 성공: " + userId + ", " + bidPrice);
                 } catch (Exception e) {
                     System.out.println("입찰 실패: " + e.getMessage());
