@@ -154,4 +154,38 @@ public class ProductService {
             );
         }
     }
+
+    public ProductListResponseDto getRandomProductsWithPagingQuerydsl(Pageable pageable) {
+        try {
+            List<Product> content = productRepository.findProductListByRandom(pageable);
+
+            long totalElements = productRepository.count();
+
+            List<ProductResponseDto> responseDtoList = content.stream()
+                    .map(ProductResponseDto::new)
+                    .collect(Collectors.toList());
+
+            int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+
+            return new ProductListResponseDto(
+                    responseDtoList,
+                    pageable.getPageNumber(),
+                    totalPages,
+                    (int) totalElements
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            Page<Product> savedContents = productRepository.findActiveProductsOrderByUpdatedAtDesc(pageable);
+            List<ProductResponseDto> responseDtoList = savedContents.stream()
+                    .map(ProductResponseDto::new)
+                    .collect(Collectors.toList());
+
+            return new ProductListResponseDto(
+                    responseDtoList,
+                    pageable.getPageNumber(),
+                    savedContents.getTotalPages(),
+                    savedContents.getTotalElements()
+            );
+        }
+    }
 }
