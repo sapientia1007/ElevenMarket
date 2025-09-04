@@ -118,4 +118,10 @@ public class BidService {
         List<BidResponseDto> savedBidsByAuctionId = bidRepository.findByAuctionId(auctionId).stream().map(BidResponseDto::new).toList();
         return new BidListResponseDto(savedBidsByAuctionId);
     }
+
+    // 경매 입찰가 확인
+    public BigDecimal getHighestBidPrice(Long auctionId) {
+        Bid savedbid = bidRepository.findHighestBidByAuctionId(auctionId).orElseThrow(() -> new CustomException("존재하지 않은 경매에요", HttpStatus.NOT_FOUND));
+        return savedbid.getBidPrice();
+    }
 }
