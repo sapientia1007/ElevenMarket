@@ -53,4 +53,9 @@ public class ProductController {
                                                                           @PageableDefault(size = 3) Pageable pageable) {
         return success(productService.getRandomProductsWithPaging(session.getId(), pageable));
     }
+
+    @GetMapping("/random-querydsl")
+    public CommonResponseEntity<ProductListResponseDto> getRandomProductsByQueryDsl(@PageableDefault(size = 3) Pageable pageable) {
+        return success(productService.getRandomProductsWithPagingQuerydsl(pageable));
+    }
 }

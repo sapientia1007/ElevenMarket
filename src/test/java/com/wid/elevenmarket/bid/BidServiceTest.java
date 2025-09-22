@@ -3,12 +3,14 @@ package com.wid.elevenmarket.bid;
 import com.wid.elevenmarket.business.AuctionService;
 import com.wid.elevenmarket.business.BidService;
 import com.wid.elevenmarket.business.OrderService;
+import com.wid.elevenmarket.global.exception.CustomException;
 import com.wid.elevenmarket.model.Product;
 import com.wid.elevenmarket.model.Users;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
 import com.wid.elevenmarket.presentation.dto.auction.req.AuctionRequestDto;
 import com.wid.elevenmarket.presentation.dto.bid.req.BidProcessRequestDto;
+import com.wid.elevenmarket.presentation.dto.bid.resp.BidResponseDto;
 import com.wid.elevenmarket.scheduler.AuctionScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +23,15 @@ import org.springframework.test.context.ActiveProfiles;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -117,5 +123,55 @@ public class BidServiceTest {
         countDownLatch.await();
 
         // 결과 검증: 최고가, 입찰 건수, 낙찰자 등
+    }
+
+    @Test
+    void testBidConcurrencyWithAllSituations() throws InterruptedException {
+        int threadCount = 15;
+        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        Random random = new Random();
+        List<Exception> exceptions = Collections.synchronizedList(new ArrayList<>());
+
+        for (int i = 0; i < threadCount; i++) {
+            final Long userId = usersIds.get(i);
+            executorService.submit(() -> {
+                try {
+                    Long auctionId = auctionIds.get(random.nextInt(auctionIds.size()));
+                    BigDecimal price = BigDecimal.valueOf(1000 + random.nextInt(1000));
+                    BidResponseDto response = bidService.processBid(BidProcessRequestDto.builder()
+                            .userId(userId)
+                            .auctionId(auctionId)
+                            .bidPrice(price)
+                            .build());
+
+                    if (response == null || response.getBidPrice() == null) {
+                        System.out.println("입찰 실패: 입찰가가 현재 최고가 이하임 - 사용자 " + userId + ", 경매 " + auctionId + ", 입찰가 " + price);
+                    }
+
+                } catch (Exception e) {
+                    // "현재 최고가보다 높은 금액만 입찰 가능합니다" 예외는 테스트 실패로 간주하지 않고 무시
+                    if (e instanceof CustomException && e.getMessage().contains("현재 최고가보다 높은 금액만 입찰 가능합니다")) {
+                        System.out.println("예외 무시: " + e.getMessage());
+                    } else {
+                        exceptions.add(e);
+                        e.printStackTrace();
+                    }
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
+
+        // 예외 발생 확인 (현재 최고가 이하 입찰 관련 예외 제외)
+        assertTrue(exceptions.isEmpty(), "예상치 않은 입찰 중 예외 발생: " + exceptions);
+
+        // 결과 검증 - 경매별 최고 입찰가 확인
+        for (Long auctionId : auctionIds) {
+            BigDecimal highestBid = bidService.getHighestBidPrice(auctionId);
+            System.out.println("Auction " + auctionId + " 최고 입찰가: " + highestBid);
+            assertNotNull(highestBid, "최고 입찰가가 등록되어야 합니다.");
+        }
     }
 }

@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, ProductCustomRepository {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Product p where p.id = :id")
@@ -41,5 +41,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p from Product p where p.isDeleted IS NULL order by p.updateAt desc")
     Page<Product> findActiveProductsOrderByUpdatedAtDesc(Pageable pageable);
-
 }
