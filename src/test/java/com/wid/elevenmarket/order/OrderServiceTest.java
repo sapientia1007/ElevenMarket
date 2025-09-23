@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -78,8 +80,7 @@ public class OrderServiceTest {
     void testOrderConcurrency() throws InterruptedException {
 
         List<Long> usersIds = new ArrayList<>();
-
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<100; i++) {
             Users user = new Users(null, "user" + i, "user" + i + "@example.com", "1234");
             usersRepository.save(user);
             usersIds.add(user.getId());
@@ -87,33 +88,55 @@ public class OrderServiceTest {
 
         Users owner = usersRepository.findById(usersIds.get(0)).orElseThrow();
 
+        // 재고가 100개인 상품 생성
         Product product = new Product(null, "TestProduct", "Test Description",
                 1000L, 500L, false, new ArrayList<>(), owner, 100, null);
-
         productRepository.save(product);
 
-        int threadCount = 10;
-        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        int totalOrders = 100;
+        CountDownLatch countDownLatch = new CountDownLatch(totalOrders);
+        ExecutorService executorService = Executors.newFixedThreadPool(totalOrders);
 
-        // 10명이 동시에 10개 주문
-        for (int i = 0; i < threadCount; i++) {
-            final Long userId = usersIds.get(i);
+        AtomicInteger successfulOrders = new AtomicInteger(0);
+        AtomicInteger failedOrders = new AtomicInteger(0);
+        AtomicLong totalExecutionTime = new AtomicLong(0);
+
+        long startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < totalOrders; i++) {
+            final int userIndex = i;
             executorService.submit(() -> {
+                long threadStartTime = System.currentTimeMillis();
                 try {
-                    orderService.processOrder(userId, product.getId(), 10);
+                    // 각 사용자가 1개씩 주문
+                    orderService.processOrder(usersIds.get(userIndex), product.getId(), 1);
+                    successfulOrders.incrementAndGet();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    failedOrders.incrementAndGet();
+                    System.err.println("주문 실패: " + e.getMessage());
                 } finally {
+                    long threadEndTime = System.currentTimeMillis();
+                    totalExecutionTime.addAndGet(threadEndTime - threadStartTime);
                     countDownLatch.countDown();
                 }
             });
         }
 
         countDownLatch.await(); // 모두 끝날때까지 대기
+        executorService.shutdown();
+        long endTime = System.currentTimeMillis();
+        long totalTestTime = endTime - startTime;
 
-        Product savedProduct = productRepository.findById(product.getId()).orElseThrow();
-        System.out.println("최종 재고 = " + savedProduct.getQuantity());
-        assertEquals(0, savedProduct.getQuantity());
+        System.out.println("--- 동시성 테스트 결과 ---");
+        System.out.println("총 주문 시도: " + totalOrders);
+        System.out.println("성공한 주문: " + successfulOrders.get());
+        System.out.println("실패한 주문: " + failedOrders.get());
+        System.out.printf("성공률: %.2f%%\n", (double) successfulOrders.get() / totalOrders * 100);
+        System.out.println("최종 재고: " + productRepository.findById(product.getId()).orElseThrow().getQuantity());
+        System.out.println("총 테스트 시간: " + totalTestTime + "ms");
+        System.out.printf("평균 응답 시간: %.2fms\n", (double)totalExecutionTime.get() / totalOrders);
+
+        assertEquals(0, productRepository.findById(product.getId()).orElseThrow().getQuantity());
+        assertEquals(100, successfulOrders.get());
     }
 }
