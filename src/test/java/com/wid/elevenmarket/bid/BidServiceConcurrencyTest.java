@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -52,20 +54,27 @@ public class BidServiceConcurrencyTest {
         auction.changeStatus(AuctionStatus.LIVE);
         auctionRepository.save(auction);
 
-        int threadCount = 5;
+        int threadCount = 100;
         CountDownLatch latch = new CountDownLatch(threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 
+        AtomicInteger successfulBids = new AtomicInteger(0);
+        AtomicInteger failedBids = new AtomicInteger(0);
+
         for (int i = 0; i < threadCount; i++) {
+            final int bidNumber = i; // 각 스레드마다 고유 번호
             final Long userId = i % 2 == 0 ? user1.getId() : user2.getId();
             executor.submit(() -> {
                 try {
-                    BigDecimal bidPrice = BigDecimal.valueOf(1000 + (int)(Math.random() * 1000));
+                    BigDecimal bidPrice = BigDecimal.valueOf(1000 + 10 * bidNumber);
                     bidService.processBid(BidProcessRequestDto.builder().userId(userId).auctionId(auction.getId()).bidPrice(bidPrice).build());
+                    successfulBids.incrementAndGet();
                     System.out.println("입찰 성공: " + userId + ", " + bidPrice);
-                } catch (Exception e) {
-                    System.out.println("입찰 실패: " + e.getMessage());
-                } finally {
+                } catch(Exception e) {
+                    if (e.getMessage().equals("현재 최고가보다 높은 금액만 입찰 가능합니다")) System.out.println("입찰 실패: " + e.getMessage());
+                    else System.out.println("입찰 실패!!!!!! " + e.getMessage()); failedBids.incrementAndGet();
+                }
+                finally {
                     latch.countDown();
                 }
             });
@@ -74,6 +83,13 @@ public class BidServiceConcurrencyTest {
         latch.await();
         executor.shutdown();
 
-        System.out.println("경매 " + auction.getId() + "의 입찰 내역: " + bidRepository.findByAuctionId(auction.getId()));
+        int totalBids = successfulBids.get() + failedBids.get();
+        double errorRate = (double) failedBids.get() / totalBids * 100;
+
+        System.out.println("\n--- 순수한 동시성 테스트 결과 ---");
+        System.out.println("총 입찰 시도: " + totalBids);
+        System.out.println("성공한 입찰: " + successfulBids.get());
+        System.out.println("실패한 입찰: " + failedBids.get());
+        System.out.printf("에러율: %.2f%%\n", errorRate);
     }
 }
