@@ -24,7 +24,7 @@ public class ProductServiceTest {
     // 상품 등록
     @Test
     void testSaveProduct() {
-        Users user = new Users(null, "user", "user@example.com", "1234");
+        Users user = new Users(null, "user", "user@example.com", "1234", "010-0000-0000", 1);
         usersRepository.save(user);
 
         for (int i=0; i<10; i++) {
