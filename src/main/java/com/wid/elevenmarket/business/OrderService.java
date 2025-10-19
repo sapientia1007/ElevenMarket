@@ -8,6 +8,7 @@ import com.wid.elevenmarket.model.enums.OrderStatus;
 import com.wid.elevenmarket.persistence.OrderRepository;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
+import com.wid.elevenmarket.presentation.dto.order.req.OrderRequestDto;
 import com.wid.elevenmarket.presentation.dto.order.resp.OrderListResponseDto;
 import com.wid.elevenmarket.presentation.dto.order.resp.OrderResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -28,17 +29,17 @@ public class OrderService {
 
     // 주문 처리 - 결제 처리 진행 전
     @Transactional
-    public OrderResponseDto processOrder(Long userId, Long productId, int orderQuantity) {
+    public OrderResponseDto processOrder(OrderRequestDto orderRequestDto) {
         // 조회
-        Product savedProduct = productRepository.findProductByIdWithPessimisticLock(productId).orElseThrow(() -> new CustomException("존재하지 않는 상품이에요", HttpStatus.NOT_FOUND));
-        Users savedUser = usersRepository.findById(userId).orElseThrow(() -> new CustomException("존재하지 않는 사용자에요", HttpStatus.NOT_FOUND));
+        Product savedProduct = productRepository.findProductByIdWithPessimisticLock(orderRequestDto.getProductId()).orElseThrow(() -> new CustomException("존재하지 않는 상품이에요", HttpStatus.NOT_FOUND));
+        Users savedUser = usersRepository.findById(orderRequestDto.getBuyerId()).orElseThrow(() -> new CustomException("존재하지 않는 사용자에요", HttpStatus.NOT_FOUND));
 
         //  주문 생성
-        Orders savedOrder = Orders.createOrder(savedUser, savedProduct, savedProduct.getPrice(), orderQuantity);
+        Orders savedOrder = Orders.createOrder(savedUser, savedProduct, savedProduct.getPrice(), orderRequestDto.getOrderQuantity());
         orderRepository.save(savedOrder);
 
         // 상품 재고 개수 감소
-        savedProduct.changeStock(orderQuantity);
+        savedProduct.changeStock(orderRequestDto.getOrderQuantity());
 
         Orders order = orderRepository.findById(savedOrder.getId())
                 .orElseThrow(() -> new CustomException("존재하지 않는 주문이에요", HttpStatus.NOT_FOUND));
