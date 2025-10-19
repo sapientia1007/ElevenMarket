@@ -39,7 +39,7 @@ public class AuctionServiceTest {
     void testOpenAuction() {
 
         LocalDateTime now = LocalDateTime.now();
-        Users user = new Users(null, "user", "user@example.com", "1234");
+        Users user = new Users(null, "user1", "user1@example.com", "1234", "010-1111-1111", 1);
         usersRepository.save(user);
 
         Product productToSave = new Product(null, "productName", "description", 1000L, null, false, new ArrayList<>(), user, 10, null);
@@ -57,7 +57,7 @@ public class AuctionServiceTest {
     void testEditAuction() {
 
         LocalDateTime now = LocalDateTime.now();
-        Users user = new Users(null, "user", "user@example.com", "1234");
+        Users user = new Users(null, "user2", "user@example.com", "1234", "010-2222-2222", 1);
         usersRepository.save(user);
 
         Product productToSave = new Product(null, "productName", "description", 1000L, null, false, new ArrayList<>(), user, 10, null);

@@ -45,8 +45,15 @@ public class OrderServiceTest {
 
         List<Long> usersIds = new ArrayList<>();
 
-        for (int i=0; i<10; i++) {
-            Users user = new Users(null, "user" + i, "user" + i + "@example.com", "1234");
+        for (int i = 0; i < 10; i++) {
+            Users user = new Users(
+                    null,
+                    "user" + i,
+                    "user" + i + "@example.com",
+                    "1234",
+                    "010-0000-" + String.format("%04d", i),
+                    1
+            );
             usersRepository.save(user);
             usersIds.add(user.getId());
         }
@@ -82,8 +89,15 @@ public class OrderServiceTest {
     void testOrderConcurrency() throws InterruptedException {
 
         List<Long> usersIds = new ArrayList<>();
-        for (int i=0; i<100; i++) {
-            Users user = new Users(null, "user" + i, "user" + i + "@example.com", "1234");
+        for (int i = 0; i < 100; i++) {
+            Users user = new Users(
+                    null,
+                    "user" + i,
+                    "user" + i + "@example.com",
+                    "1234",
+                    "010-0000-" + String.format("%04d", i),
+                    1
+            );
             usersRepository.save(user);
             usersIds.add(user.getId());
         }

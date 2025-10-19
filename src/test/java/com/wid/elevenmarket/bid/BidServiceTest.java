@@ -66,7 +66,14 @@ public class BidServiceTest {
 
         // 사용자 20명 생성
         for (int i = 0; i < 20; i++) {
-            Users user = new Users(null, "user" + i, "user" + i + "_" + System.nanoTime() + "@example.com", "1234");
+            Users user = new Users(
+                    null,
+                    "user" + i,
+                    "user" + i + "@example.com",
+                    "1234",
+                    "010-0000-" + String.format("%04d", i),
+                    1
+            );
             usersRepository.save(user);
             usersIds.add(user.getId());
         }

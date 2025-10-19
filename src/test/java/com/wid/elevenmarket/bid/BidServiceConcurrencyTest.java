@@ -43,9 +43,9 @@ public class BidServiceConcurrencyTest {
     @Test
     void testBidConcurrencyWithRedisLock() throws InterruptedException {
         // 테스트용 사용자, 상품, 경매 생성
-        Users user0 = usersRepository.save(new Users(null, "user0", "user0@example.com", "1234"));
-        Users user1 = usersRepository.save(new Users(null, "user1", "user1@example.com", "1234"));
-        Users user2 = usersRepository.save(new Users(null, "user2", "user2@example.com", "1234"));
+        Users user0 = usersRepository.save(new Users(null, "user0", "user01@example.com", "1234", "010-1000-0000", 1));
+        Users user1 = usersRepository.save(new Users(null, "user1", "user12@example.com", "1234", "010-2000-0000", 1));
+        Users user2 = usersRepository.save(new Users(null, "user2", "user23@example.com", "1234", "010-3000-0000", 1));
         Product product = new Product(null, "Test Product", "Test Description", 1000L, null, false, new ArrayList<>(), user0, 100, null);
         productRepository.save(product);
         LocalDateTime startDate = LocalDateTime.now().minusMinutes(1);
