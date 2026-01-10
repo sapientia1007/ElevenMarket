@@ -7,6 +7,7 @@ import com.wid.elevenmarket.persistence.OrderRepository;
 import com.wid.elevenmarket.persistence.ProductRepository;
 import com.wid.elevenmarket.persistence.UsersRepository;
 import com.wid.elevenmarket.business.OrderService;
+import com.wid.elevenmarket.presentation.dto.order.req.OrderRequestDto;
 import com.wid.elevenmarket.presentation.dto.order.resp.OrderResponseDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,15 @@ public class OrderServiceTest {
 
         List<Long> usersIds = new ArrayList<>();
 
-        for (int i=0; i<10; i++) {
-            Users user = new Users(null, "user" + i, "user" + i + "@example.com", "1234");
+        for (int i = 0; i < 10; i++) {
+            Users user = new Users(
+                    null,
+                    "user" + i,
+                    "user" + i + "@example.com",
+                    "1234",
+                    "010-0000-" + String.format("%04d", i),
+                    1
+            );
             usersRepository.save(user);
             usersIds.add(user.getId());
         }
@@ -62,7 +70,8 @@ public class OrderServiceTest {
         Users savedUser = usersRepository.findById(firstUser).orElseThrow(() -> new CustomException("존재하지 않는 사용자에요", HttpStatus.NOT_FOUND));
 
         // 실제 주문 처리 메소드 호출 : 1개 주문
-        OrderResponseDto savedOrder = orderService.processOrder(savedUser.getId(), savedProduct.getId(), 1);
+        OrderRequestDto orderRequestDto = new OrderRequestDto(savedProduct.getId(), savedUser.getId(), 1);
+        OrderResponseDto savedOrder = orderService.processOrder(orderRequestDto);
 
         // 상품의 재고 감소 확인
         Product updatedProduct = productRepository.findById(savedProduct.getId()).orElseThrow();
@@ -80,8 +89,15 @@ public class OrderServiceTest {
     void testOrderConcurrency() throws InterruptedException {
 
         List<Long> usersIds = new ArrayList<>();
-        for (int i=0; i<100; i++) {
-            Users user = new Users(null, "user" + i, "user" + i + "@example.com", "1234");
+        for (int i = 0; i < 100; i++) {
+            Users user = new Users(
+                    null,
+                    "user" + i,
+                    "user" + i + "@example.com",
+                    "1234",
+                    "010-0000-" + String.format("%04d", i),
+                    1
+            );
             usersRepository.save(user);
             usersIds.add(user.getId());
         }
@@ -109,7 +125,8 @@ public class OrderServiceTest {
                 long threadStartTime = System.currentTimeMillis();
                 try {
                     // 각 사용자가 1개씩 주문
-                    orderService.processOrder(usersIds.get(userIndex), product.getId(), 1);
+                    OrderRequestDto orderRequestDto = new OrderRequestDto(product.getId(), usersIds.get(userIndex), 1);
+                    orderService.processOrder(orderRequestDto);
                     successfulOrders.incrementAndGet();
                 } catch (Exception e) {
                     failedOrders.incrementAndGet();

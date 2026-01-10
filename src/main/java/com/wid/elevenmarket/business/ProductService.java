@@ -40,6 +40,7 @@ public class ProductService {
         Users seller = usersRepository.findById(productRequestDto.getSellerId()).orElseThrow(() -> new CustomException("존재하지 않는 판매자예요", HttpStatus.NOT_FOUND));
         Product toSaveProduct = Product.enrollProduct(productRequestDto.getName(), productRequestDto.getDescription(), productRequestDto.getPrice(), seller, productRequestDto.getQuantity());
         productRepository.save(toSaveProduct);
+        clearProductsCacheList();
         return new ProductResponseDto(toSaveProduct);
     }
 
@@ -49,6 +50,7 @@ public class ProductService {
         Product savedProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 제품이에요", HttpStatus.NOT_FOUND));
         savedProduct.updateProductInfo(productUpdateDto);
         productRepository.save(savedProduct);
+        clearProductsCacheList();
         return new ProductResponseDto(savedProduct);
     }
 
@@ -64,6 +66,7 @@ public class ProductService {
         Product savedProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException("존재하지 않는 제품이에요", HttpStatus.NOT_FOUND));
         savedProduct.markAsDeleted();
         productRepository.save(savedProduct);
+        clearProductsCacheList();
         return new ProductResponseDto(savedProduct);
     }
 
@@ -187,5 +190,16 @@ public class ProductService {
                     savedContents.getTotalElements()
             );
         }
+    }
+
+    private void clearProductsCacheList() {
+        try {
+            java.util.Set<String> keysToDelete = redisTemplate.keys(PRODUCT_ALL_IDS_KEY + "*");
+            if (keysToDelete != null && !keysToDelete.isEmpty()) {
+                redisTemplate.delete(keysToDelete);
+            }
+
+        } catch (Exception e) {
+            System.err.println("상품 목록 Redis 캐시 무효화 중 오류가 발생했습니다 " + e.getMessage());        }
     }
 }

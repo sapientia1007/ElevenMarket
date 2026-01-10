@@ -24,11 +24,22 @@ public class ProductServiceTest {
     // 상품 등록
     @Test
     void testSaveProduct() {
-        Users user = new Users(null, "user", "user@example.com", "1234", "010-0000-0000", 1);
-        usersRepository.save(user);
+        for (int i = 0; i < 10; i++) {
+            Users user = new Users(
+                    null,
+                    "user" + i,
+                    "user" + i + "@example.com",
+                    "1234",
+                    "010-0000-" + String.format("%04d", i),
+                    1
+            );
+            usersRepository.save(user);
+        }
 
-        for (int i=0; i<10; i++) {
-            Product productToSave = new Product(null, "productName" + i+i*3, "description" + i*2, 1000L, null, false, new ArrayList<>(), user, 10, null);
+        Users savedUser = usersRepository.findByUserId(2L).get();
+
+        for (int i=0; i<50; i++) {
+            Product productToSave = new Product(null, "productName" + i+i*3, "description" + i*2, 1000L, null, false, new ArrayList<>(), savedUser, 10, null);
             productRepository.save(productToSave);
         }
     }

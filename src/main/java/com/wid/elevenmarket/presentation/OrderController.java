@@ -19,7 +19,7 @@ public class OrderController {
 
     @PostMapping("/process")
     public CommonResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequestDto orderRequestDto) {
-        return success(orderService.processOrder(orderRequestDto.getBuyerId(), orderRequestDto.getProductId(), orderRequestDto.getOrderQuantity()));
+        return success(orderService.processOrder(orderRequestDto));
     }
 
     @GetMapping("/get/{orderId}")
